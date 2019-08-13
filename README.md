@@ -134,7 +134,14 @@ method:                     gmt
       53346 total virtual edges.
 
 DONE
-6.685659
+6.685659 minutes
+```
+
+For GO annotation:
+
+```
+gaf_annotate_graphml("example_data/lung_gtex_hierarchy.graphml")
+gaf_annotate_graphml("example_data/lung_gtex_weighted.graphml")
 ```
 
 Gephi hints:
