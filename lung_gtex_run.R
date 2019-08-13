@@ -13,6 +13,3 @@ write_graph(results$hierarchy, "example_data/lung_gtex_hierarchy.graphml", forma
 graph<-read_graph("example_data/lung_gtex_weighted.graphml", format = "graphml")
 hierarchy<-read_graph("example_data/lung_gtex_hierarchy.graphml", format = "graphml")
 
-gaf_annotate_graphml("example_data/lung_gtex_weighted.graphml")
-gaf_annotate_graphml("example_data/lung_gtex_hierarchy.graphml")
-
