@@ -148,10 +148,11 @@ Gephi hints:
 
   1. Install the plugin NBM file in Gephi with Tools > Plugins > Downloaded > Add Plugin. Find it under Filters > Topology > GRAPE Plot.
   2. Open the GraphML file `lung_gtex_weighted_annotated.graphml` or `lung_gtex_hierarchy_annotated.graphml`.
-  3. Use the Force Directed Layout 2.
-  4. Zoom out with the scroll wheel.
-  5. For the hierarchy graph, set the node size to be a function of the `absorption_time` attribute.
-  6. Turn on labels coming from the `name` attribute.
+  3. Copy the `average_distance` edge attribute data to the `Weight` column, so that the weights calculated above, and not just the topology, influence the layout.
+  4. Use the Force Directed Layout 2.
+  5. Zoom out with the scroll wheel.
+  6. For the hierarchy graph, set the node size to be a function of the `absorption_time` attribute.
+  7. Turn on labels coming from the `name` attribute.
 
 ![alt text](example_data/lunggtex.png)
 

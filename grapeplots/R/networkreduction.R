@@ -149,10 +149,11 @@ generate_reduction <- function(node_data_file=NA,
         cat("\n", file=log_place, append=named_file)
     #    weights <- as_adjacency_matrix(vgraph, attr = "average_distance", sparse = TRUE) #sparse=TRUE needed for large cases?
         weights <- as_adjacency_matrix(vgraph, attr = "average_distance", sparse = FALSE)
-        weights[weights == 0] <- 5*max(weights) # 0 weight only means that there were no relevant triangles # Maybe consider NA here instead?
+        weights[weights == 0] <- 1.5*max(weights) # 0 weight only means that there were no relevant triangles # Maybe consider NA here instead?
         for(i in 1:dim(weights)[1]) {
             weights[i,i] <- 0
         }
+        weights <- 1.5 * weights / max(weights)
         dist <- as.dist(weights)
     } else if(method == "simplecorrelation") {
         cat("[3/6] (skipped)\n", file=log_place, append=named_file)
