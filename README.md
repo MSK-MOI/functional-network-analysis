@@ -1,6 +1,7 @@
 <http://github.com/jimmymathews/grape-plots>
 
-#Gene Reduction/Annotation Plots with Enrichment
+Gene Reduction/Annotation Plots with Enrichment
+===============================================
 
 This repository contains the source code for an R package that generates weighted network models giving hierarchical reductions of a given network of features of a sample data set. For gene networks the included [Gephi](https://gephi.org) plugin can be used to explore the models and related Gene Ontology annotations.
 
