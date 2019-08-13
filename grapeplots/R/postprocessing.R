@@ -356,14 +356,15 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
             function(annotation){
                 annotated_genes <- unique(dfk$hugo_name[dfk$annotation == annotation])
                 in_bc <- intersect(rownames(node_distances), annotated_genes)
-                if(length(in_bc)<=1) {
+                if(length(in_bc)<=3) {
                     return(Inf)
                 } else {
-                    return((1.0/length(annotated_genes)) * mean(node_distances[in_bc, in_bc]))
+                    return((1.0/length(annotated_genes)) * fancymedian(node_distances[in_bc, in_bc]))
                 }
             })
         ranks <- rank(per_node_cluster_means, ties.method="first")
         names(ranks) <- annotations
+        names(per_node_cluster_means) <- annotations
         dfk$ranks <- sapply(dfk$annotation, FUN=function(annotation){return(ranks[annotation])})
 
         # Record annotation assignments in order of rank
@@ -375,14 +376,24 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
             namesfilter <- sapply(V(graph)$name, FUN=function(x){return(x %in% namesi)})
 
             attribute_index <- (100*(k-1) + (i-1)) + 1
-            vertex_attr(graph, paste0("GOA", attribute_index, "::", annotationi), V(graph)[namesfilter]) <- "TRUE"
-            vertex_attr(graph, paste0("GOA", attribute_index, "::", annotationi), V(graph)[!namesfilter]) <- "FALSE"
+            vertex_attr(graph, paste0("GOA", attribute_index, "::", per_node_cluster_means[annotationi], "::", annotationi), V(graph)[namesfilter]) <- "TRUE"
+            vertex_attr(graph, paste0("GOA", attribute_index, "::", per_node_cluster_means[annotationi], "::", annotationi), V(graph)[!namesfilter]) <- "FALSE"
         }
 
         cat("\n")
     }
 
     return(graph)
+}
+
+fancymedian <- function(mm) {
+    vv <- as.vector(mm)
+    vv <- vv[(!is.na(vv)) & (!is.nan(vv)) & !(vv==Inf)]
+    vv <- vv[vv > 0]
+    if(length(vv) < 6) {
+        return(Inf)
+    }
+    return(median(vv))
 }
 
 

@@ -89,7 +89,7 @@ Open up an R session or RStudio, then:
 source('lung_gtex_run.R')
 ```
 
-This example uses lung tissue RNA expression data from GTEx. The file `example_data/lung_tissue_expression_gtex_abridges.csv` is abridged to the 2000 genes with the most variance in the original dataset available from the [GTEx portal](https://gtexportal.org/) to save time. The main computations take about 7 minutes on an 8-core workstation, and the annotation lookup API calls take about 2 minutes. You should see output like the following:
+This example uses lung tissue RNA expression data from GTEx. The file `example_data/lung_tissue_expression_gtex_abridges.csv` is abridged to the 500 genes with the most variance in the original dataset available from the [GTEx portal](https://gtexportal.org/), to save time. You should see output like the following:
 
 ```
 Calculating weighted network reduction based on
@@ -102,39 +102,39 @@ method:                     gmt
 
 [1/6] Loading data and loading/building network
       Inferring feature network from data using Pearson correlation. (No topology_file supplied).
-      Data set 427x2000 all numeric.
-      Calculated correlations (2000x2000)
+      Data set 427x500 all numeric.
+      Calculated correlations (500x500)
       Cutoff value for correlation: 0.7
 
-      2000 nodes processed of 2000 (Elapsed 0.04 mins of expected total 0.04 mins)
-      Inferred 11361 edges, out of possible 1999000, with connectivity 0.00568334167083542
-      Support of inferred graph contains 1475 nodes.
-      Average degree 15.4047457627119.
-      Diameter 16.
+      500 nodes processed of 500 (Elapsed 0.00 mins of expected total 0.00 mins)
+      Inferred 870 edges, out of possible 124750, with connectivity 0.00697394789579158
+      Support of inferred graph contains 267 nodes.
+      Average degree 6.51685393258427.
+      Diameter 15.
 
 [2/6] Integrating sample set and network data
       Number of nodes in network not in the data set: 0
-      Number of nodes in the data set not in the network: 525
-      A2M ABTB1 ACADVL ACE ACVRL1 ...
-      Number of nodes in common: 1475
-      11361 edges after integrating dataset and feature network.
+      Number of nodes in the data set not in the network: 233
+      ABI3BP ABTB1 ADAM33 ADAR ADIPOR1 ...
+      Number of nodes in common: 267
+      870 edges after integrating dataset and feature network.
 
 [3/6] Fitting Gaussian mixture models
       Number of cores according to parallel::detectCores(): 8
       Trying 7.
-  |=====================================================================| 100%, Elapsed 02:02
-      11361 2D models with 3 populations.
+  |=======================================================================| 100%, Elapsed 00:09
+      870 2D models with 3 populations.
 
 [4/6] Comparing all adjacent models
-  |=====================================================================| 100%, Elapsed 01:31
-      400710 adjacent edge pairs considered.
+  |=======================================================================| 100%, Elapsed 00:03
+      10332 adjacent edge pairs considered.
 
 [5/6] Averaging over intermediating triangles to get virtual edges with weights
-      400710 of 400710 edge pairs collated.
-      53346 total virtual edges.
+      10332 of 10332 edge pairs collated.
+      3076 total virtual edges.
 
 DONE
-6.685659 minutes
+14.58706 secs
 ```
 
 For GO annotation:
@@ -148,13 +148,13 @@ Gephi hints:
 
   1. Install the plugin NBM file in Gephi with Tools > Plugins > Downloaded > Add Plugin. Find it under Filters > Topology > GRAPE Plot.
   2. Open the GraphML file `lung_gtex_weighted_annotated.graphml` or `lung_gtex_hierarchy_annotated.graphml`.
-  3. Copy the `average_distance` edge attribute data to the `Weight` column, so that the weights calculated above, and not just the topology, influence the layout.
-  4. Use the Force Directed Layout 2.
-  5. Zoom out with the scroll wheel.
-  6. For the hierarchy graph, set the node size to be a function of the `absorption_time` attribute.
-  7. Turn on labels coming from the `name` attribute.
+  3. Use the Force Directed Layout 2.
+  4. Zoom out with the scroll wheel.
+  5. For the hierarchy graph, set the node size to be a function of the `absorption_time` attribute.
+  6. Turn on labels coming from the `name` attribute.
 
 ![alt text](example_data/lunggtex.png)
+
 
 
 
