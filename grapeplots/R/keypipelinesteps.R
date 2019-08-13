@@ -109,7 +109,7 @@ infer_igraph <- function(data, correlation_cutoff=0.75, connectivity_cutoff=NA, 
         stop_time <- Sys.time()
         elapsed <- format(round(difftime(stop_time, start_time, 2, units="mins"), 2), nsmall = 2)
         estimate <- format(round((number_nodes/i)*difftime(stop_time, start_time, units="mins"), 2), nsmall=2) 
-        cat(paste0(i, " nodes processed of ", number_nodes, "(Elapsed ", elapsed, " of expected total ", estimate, ")\r"))
+        cat(paste0(i, " nodes processed of ", number_nodes, " (Elapsed ", elapsed, " of expected total ", estimate, ")\r"))
 
         for(j in i:number_nodes){
             if(adjacency[i,j] && j>i) {

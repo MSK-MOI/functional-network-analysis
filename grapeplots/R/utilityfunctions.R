@@ -1,9 +1,7 @@
 # Contact: Jimmy  mathewj2@mskcc.org
 #
 #' @importFrom stats var
-#' @import NMI
 library(CePa)
-library(NMI)
 library(mclust)
 library(igraph)
 
@@ -197,117 +195,4 @@ linkage_index_to_name <- function(index, node_names) {
     warning(paste0("Attempted to lookup a node name which does not exist: index ", index, " out of ", length(node_names)))
     return("No name")
 }
-
-#' Calculates statistics relating a hierarchical clustering to a known partition
-#'
-#' Helper function for calling \code{calculate_series_of_nmis_from_analyzed_graph} or \code{calculate_series_of_aris_from_analyzed_graph}.
-#' @param comparison_cluster_file A CSV file (no header) with a column of names and a column of partition labels
-#' @param graphml_file The GraphML file containing the hierarchy (e.g. as output by \code{generate_reduction}).
-#' @param track_partitions (optional) Whether to return a data frame describing the hierarchy of partitions in \code{linkage} (default FALSE)
-#' @return NMI and ARI values (possibly also a partitions data frame)
-#' @export
-calculate_stats_from_graphml_hierarchy <- function(comparison_cluster_file, graphml_file, track_partitions=FALSE) {
-    graph <- read_graph(graphml_file, format="graphml")
-    return(calculate_series_of_stats_from_analyzed_graph(comparison_cluster_file, graph, track_partitions=track_partitions))
-}
-
-#' Calculates statistics relating a linkage/hierarchical clustering to a known partition
-#'
-#' Helper function for calling \code{calculate_series_of_nmis_from_linkage}.
-#' @param comparison_cluster_file A CSV file (no header) with a column of names and a column of partition labels
-#' @param graph The graph as returned by \code{hclust}
-#' @param track_partitions (optional) Whether to return a data frame describing the hierarchy of partitions in \code{linkage} (default FALSE)
-#' @return nmi and ari values (possibly also a partitions data frame)
-#' @export
-calculate_series_of_stats_from_analyzed_graph <- function(comparison_cluster_file, graph, track_partitions=FALSE) {
-    vedges <- E(graph)[E(graph)$virtual_type == "virtual"]
-    vgraph <- subgraph.edges(graph, vedges, delete.vertices=FALSE)
-    weights <- as_adjacency_matrix(vgraph, attr = "average_distance", sparse = TRUE)
-    weights[weights == 0] <- 5*max(weights) # 0 weight only means that there were no relevant triangles # Maybe consider NA here instead?
-    # for(i in 1:dim(weights)[1]) {
-    #     cat(paste0(i, " nodes.\r"))
-    #     weights[i,i] <- 0
-    # }
-    dist <- as.dist(weights)
-    linkage_average <- hclust(dist, method = "average", members = NULL)
-    return(calculate_series_of_stats_from_linkage(comparison_cluster_file, linkage_average, track_partitions=track_partitions))
-}
-
-#' Calculates statistics relating a linkage/hierarchical clustering to a known partition
-#'
-#' @param comparison_cluster_file A CSV file (no header) with a column of names and a column of partition labels
-#' @param linkage A linkage, as returned by \code{hclust}
-#' @param track_partitions (optional) Whether to return a data frame describing the hierarchy of partitions in \code{linkage} (default FALSE)
-#' @return nmi values (possibly also a partitions data frame)
-#' @export
-calculate_series_of_stats_from_linkage <- function(comparison_cluster_file, linkage, track_partitions=FALSE) {
-    cf <- read.csv(comparison_cluster_file, stringsAsFactors=FALSE, header=TRUE)
-    sample_names <- sapply(cf[,1], function(x){as.character(x)})
-    cluster_assignments <- cf[,2]
-    # if(length(sample_names)!= length(linkage$labels) || !all(sort(sample_names) == sort(linkage$labels))) {
-    #     stop("In comparison clustering, different node set.")
-    # }
-
-    names(cluster_assignments) <- sample_names
-    matched_cluster_assignments <- sapply(linkage$labels, FUN=function(x){if(x %in% sample_names){return(cluster_assignments[as.character(x)])} else{return("NONE")}})
-    names(matched_cluster_assignments) <- linkage$labels
-
-    number_nodes <- length(linkage$labels)
-    running_classification <- data.frame(group=(-1*c(1:number_nodes)), row.names=linkage$labels)
-
-    merges <- linkage$merge
-    heights <- linkage$height
-
-    number_merges <- dim(merges)[1]
-    nmis <- c(rep(-1, number_merges))
-    aris <- c(rep(-1, number_merges))
-
-    if(track_partitions) {
-        partitions <- list()
-        k <- 1
-    }
-
-    cat("\n")
-    for(i in 1:number_merges) {
-        cat(paste0("\rCalculating NMI,ARI after merge ", i, "/", number_merges," ... "))
-        name1 <- linkage_index_to_name(merges[i, 1], linkage$labels)
-        name2 <- linkage_index_to_name(merges[i, 2], linkage$labels)
-        running_classification$group[running_classification$group == merges[i, 1]] <- i
-        running_classification$group[running_classification$group == merges[i, 2]] <- i
-
-        # Testing out an in-loop improvement step of the partition
-        bestpartition <- running_classification$group
-        names(bestpartition) <- rownames(running_classification)
-        counts <- sort(table(bestpartition), decreasing=TRUE)
-        bestparts <- names(which(counts > 0.01*sum(counts)))
-        modifiedpartition <- sapply(bestpartition, FUN=function(x){if(x %in% bestparts){return(x)} else{return(0)}})
-
-        # nmis[i] <- NMI(data.frame(c(1:number_nodes),sorted_assignments),
-        #                data.frame(c(1:number_nodes),running_classification))
-        # aris[i] <- mclust::adjustedRandIndex(as.vector(sorted_assignments), as.vector(running_classification$group))
-
-        # nmis[i] <- NMI(data.frame(c(1:number_nodes), cluster_assignments),
-        #                data.frame(c(1:number_nodes), modifiedpartition[names(cluster_assignments)]))
-        # aris[i] <- mclust::adjustedRandIndex(as.vector(cluster_assignments), as.vector(modifiedpartition))
-        nmis[i] <- NMI(data.frame(c(1:number_nodes), matched_cluster_assignments),
-                       data.frame(c(1:number_nodes), modifiedpartition[names(matched_cluster_assignments)]))
-        aris[i] <- mclust::adjustedRandIndex(as.vector(matched_cluster_assignments), as.vector(modifiedpartition[names(matched_cluster_assignments)]))
-
-        if(track_partitions) {
-            # partitions[[k]] <- running_classification
-            partitions[[k]] <- modifiedpartition
-            k <- k+1
-        }
-        cat(paste0(format(nmis[i], digits=3), ",",format(aris[i], digits=3)))
-    }
-    cat("\n")
-    if(track_partitions) {
-        partitions <- data.frame(partitions)
-        colnames(partitions) <- c()
-        return(list(nmis=nmis, aris=aris, partitions=partitions))
-    } else {
-        return(list(nmis=nmis, aris=aris))
-    }
-}   
-
 

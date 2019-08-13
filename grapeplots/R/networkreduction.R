@@ -18,14 +18,14 @@ library(CePa)
 #' 
 #' @param node_data_file Data file with numerical node sample data, with node names. Can be simple CSV, or GCT format.
 #' @param topology_file Network data file as edge list in \code{.ncol} format, 'nodename1 nodename2 weight', or else \code{.graphml} file format.
-#' @param correlation_cutoff (optional) Pearson correlation cutoff for inferring network topology from sample set.
+#' @param correlation_cutoff (optional) Pearson correlation cutoff for inferring network topology from sample set. Default 0.75.
 #' @param connectivity_cutoff (optional) Edge connectivity cutoff (also based on Pearson correlation) for inferring network topology from sample set.
 #' @param iterations (optional) Number of iterations for graph-Laplacian-based node data synthesis (when node_data_file is not specified; default 50 in this case).
 #' @param edge_limit (optional) A hard limit on the number of edges in the resulting graph (using any method).
 #' @param number_of_gmm_populations (optional) Number of populations for Gaussian Mixture Modeling (default 3).
 #' @param correlation_transformation (optional) Transform feature vectors into vector of Pearson correlations against other features. If selected, no normalization is performed beforehand.
 #' @param mc.cores (optional) For parallelization, requested number of cores.
-#' @param normalization (optional) One of "mean", "zscore", "variance", "none". Default "mean" (anticipating positive data, to preserve positivity).
+#' @param normalization (optional) One of "mean", "zscore", "variance", or "none". Default "none".
 #' @param method (optional) Default "gmt" (Gaussian Mixture Transport). If "correlation", skips the whole algorithm and simply calculates correlation weights on original network to create hierarchy.
 #' @param logdir (optional) Directory for verbose output log file to be stored in.  Default NA, with output to standard out.
 #' @return named list containing: \code{graph} (with weighted virtual edges); \code{hierarchy}, the tree graph encoding the hierarchical clustering of features/nodes with respect to the weights as distance; \code{virtual_edges_and_weights}, a data frame listing the virtual edges (neighbor-of-neighbor) with average GMT distance weights; \code{descriptor}, a string describing most of the parameters of the run. Also writes \code{graph} and \code{hierarchy} to 2 GraphML files, with names derived from \code{descriptor}.
@@ -38,7 +38,7 @@ generate_reduction <- function(node_data_file=NA,
                                edge_limit=NA,
                                number_of_gmm_populations=3,
                                correlation_transformation=c("none", "pearson", "spearman"),
-                               normalization=c("dividebymean", "zscore", "none"),
+                               normalization=c("none", "zscore", "dividebymean"),
                                method=c("gmt", "simplecorrelation"),
                                mc.cores=1,
                                logdir=NA

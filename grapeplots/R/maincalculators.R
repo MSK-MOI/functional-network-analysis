@@ -66,7 +66,7 @@ gmm_model_an_edge <- function(edge, data, number_of_gmm_populations = 3) {
         {
             mixture<-Mclust(node_pair_samples, G=n, modelNames="VVV")
             if(is.null(mixture)) {
-                cat(paste0("       Mclust model is null for (", edge[1], ", ", edge[2],")\n"))
+                #cat(paste0("       Mclust model is null for (", edge[1], ", ", edge[2],")\n"))
                 return(NULL)
             }
             ps <- mixture$parameters

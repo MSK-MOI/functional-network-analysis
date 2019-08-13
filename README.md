@@ -8,6 +8,7 @@ This repository contains the source code for an R package that generates weighte
   1. **[Build workflow](#BuildWorkflow)** (skip if you want to install from archive files)
   2. **[Installation](#Installation)**
   3. **[Dependency notes](#DependencyNotes)**
+  4. **[Example usage](#Example)**
 
 Build workflow <a name="BuildWorkflow"></a>
 --------------
@@ -71,10 +72,88 @@ install.packages('BiocManager')
 BiocManager::install("CePa")
 ```
 
-For the GO annotation functionality:
+For the GO annotation functionality you will need
 
 ```
 BiocManager::install("rols")
 ```
+
+and you will also need the `goa_human.gaf` annotation file available from the [EBI](https://www.ebi.ac.uk/GOA/downloads). For the most updated information, the script uses web API calls for the term definitions rather than a term definition file. However a partial cache file system is used to speed up repeated lookups.
+
+Example Usage <a name="Example"></a>
+-------------
+
+Open up an R session or RStudio, then:
+
+```
+source('lung_gtex_run.R')
+```
+
+This example uses lung tissue RNA expression data from GTEx. The file `example_data/lung_tissue_expression_gtex_abridges.csv` is abridged to the 2000 genes with the most variance in the original dataset available from the [GTEx portal](https://gtexportal.org/) to save time. The main computations take about 7 minutes on an 8-core workstation, and the annotation lookup API calls take about 2 minutes. You should see output like the following:
+
+```
+Calculating weighted network reduction based on
+
+node_data_file:             example_data/lung_tissue_expression_gtex_abridged.csv
+topology_file:              NA
+correlation_transformation: none
+normalization:              none
+method:                     gmt
+
+[1/6] Loading data and loading/building network
+      Inferring feature network from data using Pearson correlation. (No topology_file supplied).
+      Data set 427x2000 all numeric.
+      Calculated correlations (2000x2000)
+      Cutoff value for correlation: 0.7
+
+      2000 nodes processed of 2000 (Elapsed 0.04 mins of expected total 0.04 mins)
+      Inferred 11361 edges, out of possible 1999000, with connectivity 0.00568334167083542
+      Support of inferred graph contains 1475 nodes.
+      Average degree 15.4047457627119.
+      Diameter 16.
+
+[2/6] Integrating sample set and network data
+      Number of nodes in network not in the data set: 0
+      Number of nodes in the data set not in the network: 525
+      A2M ABTB1 ACADVL ACE ACVRL1 ...
+      Number of nodes in common: 1475
+      11361 edges after integrating dataset and feature network.
+
+[3/6] Fitting Gaussian mixture models
+      Number of cores according to parallel::detectCores(): 8
+      Trying 7.
+  |=====================================================================| 100%, Elapsed 02:02
+      11361 2D models with 3 populations.
+
+[4/6] Comparing all adjacent models
+  |=====================================================================| 100%, Elapsed 01:31
+      400710 adjacent edge pairs considered.
+
+[5/6] Averaging over intermediating triangles to get virtual edges with weights
+      400710 of 400710 edge pairs collated.
+      53346 total virtual edges.
+
+DONE
+6.685659
+```
+
+Gephi hints:
+
+  1. Install the plugin NBM file with Tools > Plugins > Downloaded > Add Plugin. Find it under Filters > Topology > GRAPE Plot.
+  2. Use the Force Directed Layout 2.
+  3. Zoom out with the scroll wheel.
+  4. For the hierarchy graph, set the node size to be a function of the `absorption_time` attribute.
+  5. Turn on labels coming from the `name` attribute.
+
+![alt text](example_data/lunggtex.png)
+
+
+
+
+
+
+
+
+
 
 

@@ -1,4 +1,4 @@
 library(testthat)
-library(networkreduction)
+library(grapeplots)
 
-test_check("networkreduction")
+test_check("grapeplots")

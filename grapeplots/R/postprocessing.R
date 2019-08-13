@@ -106,77 +106,38 @@ annotate_graphml_with_feature_clusters <- function(graphml_file, feature_cluster
 #' 
 #' Annotates a GraphML file whose nodes are genes. See \link{gaf_annotate_igraph}.
 #' @param graphml_file GraphML file with 'name' attribute with valid HUGO gene symbols.
-#' @param comparison_graphml_file A second GraphML file for differential analysis. Default NA.
 #' @param gaf_file GAF (Gene Annotation Format) file (default \code{goa_human.gaf}) to get annotations from.
 #' @param outdir Subdirectory for output (default NA, meaning current directory).
 #' @param rename If FALSE, does not give a new name to the output file (possibly overwriting the input GraphML file). If TRUE, renames with "_annotated" appended to filename (default TRUE).
 #' @param linelimit (optional) Limit on number of lines of gaf_file to read. Default NA (no limit).
 #' @export
-gaf_annotate_graphml <- function(graphml_file, comparison_graphml_file=NA, gaf_file="goa_human.gaf", outdir=NA, rename=TRUE, linelimit=NA) {
-    warning("igraph library's GraphML parser doesn't always load edge attributes from GraphML.")
+gaf_annotate_graphml <- function(graphml_file, gaf_file="goa_human.gaf", outdir=NA, rename=TRUE, linelimit=NA) {
+    #warning("igraph library's GraphML parser doesn't always load edge attributes from GraphML.")
     if(!grepl("\\.(graphml|GRAPHML)$", graphml_file)) {
         warning("graphml_file not recognized as being in GraphML file format.")
         return()
     }
-    if(!is.na(comparison_graphml_file)) {
-        if(!grepl("\\.(graphml|GRAPHML)$", comparison_graphml_file)) {
-            warning("comparison_graphml_file not recognized as being in GraphML file format.")
-            return()
-        }
-    }
 
     graph <- igraph::simplify(read_graph(graphml_file, format = "graphml"))
-    if(!is.na(comparison_graphml_file)) {
-        graph2 <- igraph::simplify(read_graph(comparison_graphml_file, format = "graphml"))
-        graphs <- gaf_annotate_igraph(graph, graph2=graph2, gaf_file=gaf_file, linelimit=linelimit)   #egg
-        graph <- graphs[[1]]
-        graph2 <- graphs[[2]]
-        select_annotations <- graphs[[3]]
-    } else {
-        graph <- gaf_annotate_igraph(graph, gaf_file=gaf_file, linelimit=linelimit)
-    }
+    graph <- gaf_annotate_igraph(graph, gaf_file=gaf_file, linelimit=linelimit)   #egg
 
     # appropriate time for this check?
     if(length(intersect(c("name", "absorption_time"), list.vertex.attributes(graph))) != 2) {
         warning("Graph doesn't have name or doesn't have absorption_time attributes.")
         # return()
     }
-    if(!is.na(comparison_graphml_file)) {
-        if(length(intersect(c("name", "absorption_time"), list.vertex.attributes(graph2))) != 2) {
-            warning("Graph doesn't have name or doesn't have absorption_time attributes.")
-            # return()
-        }        
-    }
 
     if(!rename) {
         outfile <- graphml_file
     } else {
-        outfile <- paste0(sub("\\.(graphml|GRAPHML)$", "", graphml_file), "_diffannotated.graphml")
-    }
-    if(!is.na(comparison_graphml_file)) {
-        if(!rename){
-            warning("rename set to FALSE, but this is not applicable in differential analysis (triggered by providing a comparison_graphml_file).")
-        } else {
-            p1 <- sub("\\.(graphml|GRAPHML)$", "", graphml_file)
-            p2 <- sub("\\.(graphml|GRAPHML)$", "", comparison_graphml_file)
-            outfile  <- paste0(p1, "_VS_", basename(p2), "_diffannotated.graphml")
-            outfile2 <- paste0(p2, "_VS_", basename(p1), "_diffannotated.graphml")
-        }
+        outfile <- paste0(sub("\\.(graphml|GRAPHML)$", "", graphml_file), "_annotated.graphml")
     }
 
     if(!is.na(outdir)) {
         outfile <- paste(outdir, basename(outfile), sep="/")
-        if(!is.na(comparison_graphml_file)) {
-            outfile2 <- paste(outdir, basename(outfile2), sep="/")
-        }
     }
 
     write_graph(graph, outfile, format="graphml")
-    if(!is.na(comparison_graphml_file)) {
-        write_graph(graph2, outfile2, format="graphml")
-    }
-
-    return(select_annotations)
 }
 
 #' Annotate an igraph using Gene Annotation File database
@@ -342,14 +303,8 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
             break
         }
 
-        if(differential_pipeline) {
-            if(!(fields[3] %in% names) && !(fields[3] %in% names2)) {
-                next
-            }
-        } else {
-            if(!(fields[3] %in% names)) {
-                next
-            }
+        if(!(fields[3] %in% names)) {
+            next
         }
         
         record <- process_line(line, pattern)
@@ -384,9 +339,6 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
     full_names <- df$full_name[!duplicated(df$hugo_name)]
     names(full_names) <- df$hugo_name[!duplicated(df$hugo_name)]
     V(graph)$full_name <- full_names[V(graph)$name]
-    if(differential_pipeline) {
-        V(graph2)$full_name <- full_names[V(graph2)$name]
-    }
 
     dfr <- list(C=df[df$aspect == "component",], F=df[df$aspect == "function",], P=df[df$aspect == "process",])
     aspects <- c("C","F","P")
