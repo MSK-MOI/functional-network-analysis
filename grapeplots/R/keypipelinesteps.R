@@ -287,16 +287,22 @@ make_graph_from_linkage <- function(linkage, node_names, label="linkage"){
 
     absorption_times <- list()
     k <- 1
+    absorption_times_refined <- list()
+    l <- 1
 
     membership_edges <- data.frame(matrix(c(""), nrow=2*threshold, ncol=4), stringsAsFactors=FALSE)
-    colnames(membership_edges) <- c("source", "target", label, "type")
+    colnames(membership_edges) <- c("source", "target", label, "weight")
+    sc <- log2(threshold)
     for(i in 1:threshold) {
         membership_edges[2*i-1, 1] <- linkage_index_to_name(merges[i,1], node_names)
         membership_edges[2*i-1, 2] <- paste0("SN",i)
         membership_edges[2*i-1, 3] <- label
+        membership_edges[2*i-1, 4] <- 1+(i/threshold)*sc
         membership_edges[2*i, 1] <- linkage_index_to_name(merges[i,2], node_names)
         membership_edges[2*i, 2] <- paste0("SN",i)
         membership_edges[2*i, 3] <- label
+        membership_edges[2*i, 4] <- 1+(i/threshold)*sc
+
 
         if(merges[i,1] < 0) {
             absorption_times[[k]] <- c(linkage_index_to_name(merges[i,1], node_names), k)
@@ -306,6 +312,8 @@ make_graph_from_linkage <- function(linkage, node_names, label="linkage"){
             absorption_times[[k]] <- c(linkage_index_to_name(merges[i,2], node_names), k)
             k <- k + 1 
         }
+        absorption_times_refined[[l]] <- c(paste0("SN",i), 1+(i/threshold)*sc)
+        l <- l + 1 
     }
 
     new_names <- c(node_names, paste0("SN", c(1:threshold)))
@@ -317,6 +325,13 @@ make_graph_from_linkage <- function(linkage, node_names, label="linkage"){
         fname <- absorption_times[[j]][1]
         val <- absorption_times[[j]][2]
         V(hierarchy)[fname]$absorption_time <- -1*as.numeric(val)
+    }
+
+    V(hierarchy)$absorption_time_refined <- c(rep(-1*length(absorption_times_refined),length(V(hierarchy))))
+    for(j in 1:length(absorption_times_refined)) {
+        fname <- absorption_times_refined[[j]][1]
+        val <- absorption_times_refined[[j]][2]
+        V(hierarchy)[fname]$absorption_time_refined <- -1*as.numeric(val)
     }
  
     V(hierarchy)$int_type <- sapply(V(hierarchy)$type, function(x){if(x=="original"){return(1)} else {return(0)}})

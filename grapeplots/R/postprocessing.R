@@ -118,7 +118,8 @@ gaf_annotate_graphml <- function(graphml_file, gaf_file="goa_human.gaf", outdir=
         return()
     }
 
-    graph <- igraph::simplify(read_graph(graphml_file, format = "graphml"))
+    graph <- read_graph(graphml_file, format = "graphml")
+    # graph <- igraph::simplify(read_graph(graphml_file, format = "graphml"))
     graph <- gaf_annotate_igraph(graph, gaf_file=gaf_file, linelimit=linelimit)   #egg
 
     # appropriate time for this check?
@@ -349,6 +350,8 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
 
         # Ranking mechanism. Calculate average between-node distance on hierarchy graph for subset with given annotation.
         leaf_nodes <- V(graph)$name
+        # Definitely only works on the hierarchy version now
+        edge_attr(graph, "weight", E(graph)) <- -1*(V(graph)[ends(graph,E(graph))[,2]])$absorption_time_refined
         node_distances <- distances(graph, v=leaf_nodes, to=leaf_nodes, mode="all")
 
         annotations <- unique(dfk$annotation)
@@ -359,13 +362,26 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
                 if(length(in_bc)<=3) {
                     return(Inf)
                 } else {
-                    return((1.0/length(annotated_genes)) * fancymedian(node_distances[in_bc, in_bc]))
+                    # return((1.0/length(annotated_genes)) * fancymedian(node_distances[in_bc, in_bc]))
+                    return( fancymedian(node_distances[in_bc, in_bc]))
                 }
+            })
+        number_genes <- sapply(annotations,
+            function(annotation){
+                annotated_genes <- unique(dfk$hugo_name[dfk$annotation == annotation])
+                return(length(annotated_genes))
             })
         ranks <- rank(per_node_cluster_means, ties.method="first")
         names(ranks) <- annotations
         names(per_node_cluster_means) <- annotations
         dfk$ranks <- sapply(dfk$annotation, FUN=function(annotation){return(ranks[annotation])})
+
+        tb <- cbind(names(per_node_cluster_means[order(per_node_cluster_means)][1:max_levels]),
+                    per_node_cluster_means[order(per_node_cluster_means)][1:max_levels],
+                    number_genes[order(per_node_cluster_means)][1:max_levels])
+        colnames(tb) <- c("annotation", "median pairwise graph distance", "number genes annotated")
+        tb[,1] <- sapply(tb[,1], FUN=function(an){ return(str_replace(an, ",", ";")) })
+        write.table(tb, paste0("log", aspects[k], ".csv"), quote=F, sep=',', row.names=F)
 
         # Record annotation assignments in order of rank
         for(i in 1:max_levels) {
