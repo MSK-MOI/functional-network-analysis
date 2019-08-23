@@ -343,6 +343,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
 
     dfr <- list(C=df[df$aspect == "component",], F=df[df$aspect == "function",], P=df[df$aspect == "process",])
     aspects <- c("C","F","P")
+    tb <- list()
 
     for(k in 1:3) {
         dfk <- dfr[[k]]
@@ -355,17 +356,19 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
         node_distances <- distances(graph, v=leaf_nodes, to=leaf_nodes, mode="all")
 
         annotations <- unique(dfk$annotation)
-        per_node_cluster_means <- sapply(annotations,
+        medians_and_pvalues <- sapply(annotations,
             function(annotation){
                 annotated_genes <- unique(dfk$hugo_name[dfk$annotation == annotation])
                 in_bc <- intersect(rownames(node_distances), annotated_genes)
                 if(length(in_bc)<=3) {
-                    return(Inf)
+                    return(c(Inf, 1.0))
                 } else {
                     # return((1.0/length(annotated_genes)) * fancymedian(node_distances[in_bc, in_bc]))
-                    return( fancymedian(node_distances[in_bc, in_bc]))
+                    return( fancymedian(node_distances[in_bc, in_bc], trials=1000, nodes=in_bc, node_distances=node_distances))
                 }
             })
+        per_node_cluster_means <- medians_and_pvalues[1,]
+        pvalues <- medians_and_pvalues[2,]
         number_genes <- sapply(annotations,
             function(annotation){
                 annotated_genes <- unique(dfk$hugo_name[dfk$annotation == annotation])
@@ -374,42 +377,75 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
         ranks <- rank(per_node_cluster_means, ties.method="first")
         names(ranks) <- annotations
         names(per_node_cluster_means) <- annotations
+        names(pvalues) <- annotations
         dfk$ranks <- sapply(dfk$annotation, FUN=function(annotation){return(ranks[annotation])})
 
-        tb <- cbind(names(per_node_cluster_means[order(per_node_cluster_means)][1:max_levels]),
-                    per_node_cluster_means[order(per_node_cluster_means)][1:max_levels],
-                    number_genes[order(per_node_cluster_means)][1:max_levels])
-        colnames(tb) <- c("annotation", "median pairwise graph distance", "number genes annotated")
-        tb[,1] <- sapply(tb[,1], FUN=function(an){ return(str_replace(an, ",", ";")) })
-        write.table(tb, paste0("log", aspects[k], ".csv"), quote=F, sep=',', row.names=F)
+        tb[[k]] <- data.frame(median_stat=per_node_cluster_means[1:max_levels], pvalues=pvalues[1:max_levels], number_genes=number_genes[1:max_levels], stringsAsFactors=FALSE)
+        rownames(tb[[k]]) <- names(per_node_cluster_means[1:max_levels])
+        tb[[k]] <- tb[[k]][order(tb[[k]][,"pvalues"]),]
+        cat(aspects[k])
+        print(head(tb[[k]], n=10))
+        write.table(tb[[k]], paste0("log", aspects[k], ".txt"), quote=FALSE, row.names=TRUE)
 
         # Record annotation assignments in order of rank
         for(i in 1:max_levels) {
-            cat(paste0("\r", i, " out of ", max_levels))
-            namesi <- dfk$hugo_name[dfk$ranks == i]
-            namesi <- namesi[!duplicated(namesi)]
-            annotationi <- dfk$annotation[which.max(dfk$ranks == i)]
+            # namesi <- dfk$hugo_name[dfk$ranks == i]
+            # namesi <- namesi[!duplicated(namesi)]
+            # annotationi <- dfk$annotation[which.max(dfk$ranks == i)]
+            annotationi <- rownames(tb[[k]])[i]
+            namesi <- dfk$hugo_name[dfk$annotation == annotationi]
             namesfilter <- sapply(V(graph)$name, FUN=function(x){return(x %in% namesi)})
 
             attribute_index <- (100*(k-1) + (i-1)) + 1
-            vertex_attr(graph, paste0("GOA", attribute_index, "::", per_node_cluster_means[annotationi], "::", annotationi), V(graph)[namesfilter]) <- "TRUE"
-            vertex_attr(graph, paste0("GOA", attribute_index, "::", per_node_cluster_means[annotationi], "::", annotationi), V(graph)[!namesfilter]) <- "FALSE"
+            vertex_attr(graph, paste0("GOA", attribute_index, "::p=", signif(pvalues[annotationi], digits=3), "::", annotationi), V(graph)[namesfilter]) <- "TRUE"
+            vertex_attr(graph, paste0("GOA", attribute_index, "::p=", signif(pvalues[annotationi], digits=3), "::", annotationi), V(graph)[!namesfilter]) <- "FALSE"
         }
+        cat("\n\n")
 
-        cat("\n")
     }
 
     return(graph)
 }
 
-fancymedian <- function(mm) {
+fancymedian <- function(mm, trials=NA, nodes=NA, node_distances=NA) {
     vv <- as.vector(mm)
     vv <- vv[(!is.na(vv)) & (!is.nan(vv)) & !(vv==Inf)]
     vv <- vv[vv > 0]
     if(length(vv) < 6) {
-        return(Inf)
+        if(is.na(trials)) {
+            return(Inf)
+        } else {
+            return(c(Inf, 1.0))
+        }
     }
-    return(median(vv))
+    fm <- median(vv)
+    if(fm == Inf) {
+        return(c(Inf, 1.0))
+    }
+    if(is.na(trials)) {
+        return(fm)
+    } else {
+        number_nodes <- dim(node_distances)[1]
+        high_count <- 0
+        low_count <- 0
+        for(i in c(1:trials)) {
+            new_nodes <- sample(c(1:number_nodes), length(nodes), replace=FALSE)
+            new_fm <- fancymedian(node_distances[new_nodes, new_nodes])
+            if(new_fm == Inf) {
+                next
+            }
+            if(new_fm <= fm) {
+                low_count <- low_count + 1
+            } else {
+                high_count <- high_count + 1
+            }
+        }
+        if(low_count + high_count == 0) {
+            return(c(fm, 1.0))
+        } else {
+            return(c(fm, low_count / (low_count + high_count)))
+        }
+    }
 }
 
 
