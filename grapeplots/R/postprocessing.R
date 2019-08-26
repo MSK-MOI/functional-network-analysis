@@ -364,7 +364,8 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
                     return(c(Inf, 1.0))
                 } else {
                     # return((1.0/length(annotated_genes)) * fancymedian(node_distances[in_bc, in_bc]))
-                    return( fancymedian(node_distances[in_bc, in_bc], trials=1000, nodes=in_bc, node_distances=node_distances))
+                    # return( fancymedian(node_distances[in_bc, in_bc], trials=1000, nodes=in_bc, node_distances=node_distances))
+                    return( fancymedian(node_distances[in_bc, in_bc], trials=1000, nodes=in_bc, node_distances=node_distances, type="average"))
                 }
             })
         per_node_cluster_means <- medians_and_pvalues[1,]
@@ -407,7 +408,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
     return(graph)
 }
 
-fancymedian <- function(mm, trials=NA, nodes=NA, node_distances=NA) {
+fancymedian <- function(mm, trials=NA, nodes=NA, node_distances=NA, type=c("median")) {
     vv <- as.vector(mm)
     vv <- vv[(!is.na(vv)) & (!is.nan(vv)) & !(vv==Inf)]
     vv <- vv[vv > 0]
@@ -418,7 +419,12 @@ fancymedian <- function(mm, trials=NA, nodes=NA, node_distances=NA) {
             return(c(Inf, 1.0))
         }
     }
-    fm <- median(vv)
+    if(type == "median") {
+        fm <- median(vv)
+    }
+    if(type == "average") {
+        fm <- mean(vv)
+    }
     if(fm == Inf) {
         return(c(Inf, 1.0))
     }
