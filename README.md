@@ -1,7 +1,7 @@
 <http://github.com/jimmymathews/grape-plots>
 
-**G**aussian/**G**ene**/**G**eneralized **R**eduction **A**nnotation **P**lots with **E**nrichment (GRAPE)
-==========================================================================================================
+**G**aussian/**G**ene/**G**eneralized **R**eduction **A**nnotation **P**lots with **E**nrichment (GRAPE)
+========================================================================================================
 
 ![alt text](flowchart.png)
 
