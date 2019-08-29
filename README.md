@@ -150,7 +150,7 @@ Gephi hints:
   4. Set the node size to be a function of the `absorption_time` attribute.
   5. Turn on labels coming from the `name` attribute.
 
-![alt text](example_data/lunggtex_hierarchy.png)
+![alt text](lunggtex_hierarchy.png)
 
 
 
