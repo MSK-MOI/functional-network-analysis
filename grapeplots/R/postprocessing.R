@@ -3,6 +3,10 @@
 #' @import stringr
 #' @import igraph
 #' @import rols
+#' @importFrom stats median
+#' @importFrom utils head
+#' @importFrom utils write.table
+
 
 library(stringr)
 suppressMessages(library(igraph))

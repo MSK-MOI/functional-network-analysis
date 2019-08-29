@@ -80,7 +80,7 @@ For the GO annotation functionality you will need
 BiocManager::install("rols")
 ```
 
-and you will also need the `goa_human.gaf` annotation file available from the [EBI](https://www.ebi.ac.uk/GOA/downloads). For the most updated information, the script uses web API calls for the term definitions rather than a term definition file. However a partial cache file system is used to speed up repeated lookups.
+and you will also need the `goa_human.gaf` annotation file available from the [EBI](https://www.ebi.ac.uk/GOA/downloads). `goa_human.gaf` is a somewhat large file (75mb), which is why it is not included here. For the most updated information, the script uses web API calls for the term definitions rather than a term definition file. However a partial cache file system is used to speed up repeated lookups.
 
 Example Usage <a name="Example"></a>
 -------------
@@ -91,7 +91,7 @@ After installation with `install.packages("grapeplots_1.0.0.tar.gz", repos=NULL,
 source('lung_gtex_run.R')
 ```
 
-This example uses lung tissue RNA expression data from GTEx. The file `example_data/lung_tissue_expression_gtex_abridges.csv` is abridged to the 1000 genes with the most variance in the original dataset available from the [GTEx portal](https://gtexportal.org/), for illustration purposes. You should see output like the following:
+This example uses lung tissue RNA expression data from GTEx. The file `example_data/lung_tissue_expression_gtex_abridged.csv` is abridged to the 1000 genes with the most variance in the original dataset available from the [GTEx portal](https://gtexportal.org/), for illustration purposes. You should see output like the following:
 
 ```
 Calculating weighted network reduction based on
