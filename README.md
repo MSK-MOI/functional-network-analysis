@@ -11,6 +11,7 @@ This repository contains the source code for an R package that generates weighte
   2. **[Installation](#Installation)**
   3. **[Dependency notes](#DependencyNotes)**
   4. **[Example usage](#Example)**
+  5. **[Annotation](#Annotation)**
 
 Build workflow <a name="BuildWorkflow"></a>
 --------------
@@ -152,7 +153,10 @@ Gephi hints:
 
 ![alt text](lunggtex_hierarchy.png)
 
+Annotation <a name="Annotation"></a>
+----------
 
+The Gene Ontology annotations are assessed for statistical significance as follows. The gene/term pairs listed in `goa_human.gaf` are filtered for the genes in the final hierarchy graph (approximately 750 genes in the example). Each term (annotation) that appears is thereby associated with a certain gene subset, certain leaf nodes in our weighted hierarchy tree (the edges of the hierarchy tree are weighted by a scaled level). For each such subset, the mean of the node-to-node pairwise weighted graph distances is calculated and regarded as a dispersal or coordination statistic. The statistical significance is measured with 10000-trial bootstrapping by random permutation of the gene set, with a p-value recording the fraction of the trials in which the statistic was lower than the observed value.
 
 
 
