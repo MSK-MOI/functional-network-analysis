@@ -381,7 +381,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
         names(pvalues) <- annotations
         dfk$ranks <- sapply(dfk$annotation, FUN=function(annotation){return(ranks[annotation])})
 
-        tb[[k]] <- data.frame(median_stat=per_node_cluster_means[1:max_levels], pvalues=pvalues[1:max_levels], number_genes=number_genes[1:max_levels], stringsAsFactors=FALSE)
+        tb[[k]] <- data.frame(average_stat=per_node_cluster_means[1:max_levels], pvalues=pvalues[1:max_levels], number_genes=number_genes[1:max_levels], stringsAsFactors=FALSE)
         rownames(tb[[k]]) <- names(per_node_cluster_means[1:max_levels])
         tb[[k]] <- tb[[k]][order(tb[[k]][,"pvalues"]),]
         cat(aspects[k])
@@ -408,7 +408,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
     return(graph)
 }
 
-fancymedian <- function(mm, trials=NA, nodes=NA, node_distances=NA, type=c("median")) {
+fancymedian <- function(mm, trials=NA, nodes=NA, node_distances=NA, type=c("average")) {
     vv <- as.vector(mm)
     vv <- vv[(!is.na(vv)) & (!is.nan(vv)) & !(vv==Inf)]
     vv <- vv[vv > 0]
