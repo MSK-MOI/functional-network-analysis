@@ -18,8 +18,8 @@ Files ‘README.md’ or ‘NEWS.md’ cannot be checked without ‘pandoc’ be
 Non-standard file/directory found at top level:
   ‘cran-comments.md’
 
-The second NOTE only appeared when checking with R-devel. R-devel indicated that 'pandoc' cannot be installed for R-devel, so I am hoping this part is not a problem.
-As for the "new submission" indication, this is correct.
+R-devel indicated that 'pandoc' cannot be installed for R-devel, so I am hoping this part is not a problem.
+As for the "new submission" indication, this is correct. R-release (4.0.0) also indicated that 'pandoc' is not available.
 Also, all of the documentation seems to say that 'cran-comments.md' is a standard file (it is this file, in fact), and in several examples it seems to appear 'at the top-level'. So I left it where it is.
 
 
