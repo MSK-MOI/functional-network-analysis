@@ -1,17 +1,14 @@
-<http://github.com/jimmymathews/grape-plots>
-
-**G**aussian/**G**ene/**G**eneralized **R**eduction **A**nnotation **P**lots with **E**nrichment (GRAPE)
-========================================================================================================
+Functional Network Analysis
+===========================
 
 ![alt text](flowchart.png)
 
-This repository contains the source code for an R package that generates weighted network models for hierarchical reductions of a given network of features of a sample data set. For gene networks the included [Gephi](https://gephi.org) plugin can be used to explore the models and related Gene Ontology annotations.
+This repository contains the source code for an R package that generates weighted network models describing "functional profiles" found in a feature network. For gene networks the included [Gephi](https://gephi.org) plugin can be used to explore the models and related Gene Ontology annotations.
 
   1. **[Build workflow](#BuildWorkflow)** (skip this if you don't want to rebuild from source)
   2. **[Installation](#Installation)**
   3. **[Dependency notes](#DependencyNotes)**
   4. **[Example usage](#Example)**
-  5. **[Annotation](#Annotation)**
 
 Build workflow <a name="BuildWorkflow"></a>
 --------------
@@ -23,14 +20,14 @@ In R,
 install.packages(c("devtools", "roxygen2")) # If necessary
 library(devtools)
 library(roxygen2)
-document('grapeplots/')
+document('fna/')
 ```
 
 You might already have all the dependencies installed, but if not go to [Dependency notes](#DependencyNotes) first. In the terminal session:
 ```
-R CMD INSTALL grapeplots
-R CMD build grapeplots
-R CMD check grapeplots_1.0.0.tar.gz
+R CMD INSTALL fna
+R CMD build fna
+R CMD check fna_1.0.0.tar.gz
 ```
 
 or just
@@ -38,25 +35,23 @@ or just
 ./build.sh
 ```
 
-(The version number might vary.)
-
-For the Gephi plugin, clone and set up the plugin-development repository from their [website](https://gephi.org). Choose plugin type 'Filter' when prompted. Under `src/main/java/` make directory `grapeplots/` and copy into it all the `.java` files from `gephi_plugin_code`. Then run
+For the Gephi plugin, clone and set up the plugin-development repository from their [website](https://gephi.org). Choose plugin type 'Filter' when prompted. Under `src/main/java/` make directory `fna/` and copy into it all the `.java` files from `gephi_plugin_code`. Then run
 
 ```
 mvn clean package
 ```
 
-For the above you need Maven to be installed.
+For the above you need a Maven installation.
 
-The `.nbm` file created somewhere in a `target` folder can be loaded directly into Gephi as a new plugin (or else you can use the `.nbm` file included in this repository). You can select 'GRAPE Plot' from the 'Topology' category of filters.
+The `.nbm` file created somewhere in a `target` folder can be loaded directly into Gephi as a new plugin. You can select 'FNA Plot' from the 'Topology' category of filters.
 
 Installation <a name="Installation"></a>
 ------------
-Assuming you built/checked the R package:
+Assuming you built/checked the R package, do the following:
 
 ```
-install.packages("grapeplots_1.0.0.tar.gz", repos=NULL, type="source")
-library(grapeplots)
+install.packages("fna_1.0.0.tar.gz", repos=NULL, type="source")
+library(fna)
 
 help(generate_reduction) # To see usage of the main function, for example
 ```
@@ -68,7 +63,7 @@ Dependency notes <a name="DependencyNotes"></a>
 install.packages(c("igraph","emdist","mclust","pbmcapply"))
 ```
 
-If you want support for the GCT file format for gene expression data:
+If you want support for the GCT file format for gene expression data, use:
 
 ```
 install.packages('BiocManager')
@@ -81,12 +76,12 @@ For the GO annotation functionality you will need
 BiocManager::install("rols")
 ```
 
-and you will also need the `goa_human.gaf` annotation file available from the [EBI](https://www.ebi.ac.uk/GOA/downloads). `goa_human.gaf` is a somewhat large file (75mb), which is why it is not included here. For the most updated information, the script uses web API calls for the term definitions rather than a term definition file. However a partial cache file system is used to speed up repeated lookups.
+and you will also need the `goa_human.gaf` annotation file available from the [EBI](https://www.ebi.ac.uk/GOA/downloads). `goa_human.gaf` is a somewhat large file (75mb), which is why it is not included here in this repository. For the most updated information, the script uses web API calls for the term definitions rather than a term definition file. However a partial cache file system is used to speed up repeated lookups.
 
 Example Usage <a name="Example"></a>
 -------------
 
-After installation with `install.packages("grapeplots_1.0.0.tar.gz", repos=NULL, type="source")`, open up an R session or RStudio and then run:
+After installation with `install.packages("fna_1.0.0.tar.gz", repos=NULL, type="source")`, open up an R session or RStudio and then run:
 
 ```
 source('lung_gtex_run.R')
@@ -145,7 +140,7 @@ You can open up the output file `example_data/lung_gtex_hierarchy_1000_annotated
 
 Gephi hints:
 
-  1. Install the plugin NBM file into Gephi with Tools > Plugins > Downloaded > Add Plugin. Then find it under Filters > Topology > GRAPE Plot.
+  1. Install the plugin NBM file into Gephi with Tools > Plugins > Downloaded > Add Plugin. Then find it under Filters > Topology > FNA Plot.
   2. Use the Force Directed Layout 2.
   3. Zoom out with the scroll wheel.
   4. Set the node size to be a function of the `absorption_time` attribute.
@@ -153,17 +148,4 @@ Gephi hints:
 
 ![alt text](lunggtex_hierarchy.png)
 
-Annotation <a name="Annotation"></a>
-----------
-
-The Gene Ontology annotations are assessed for statistical significance as follows. The gene/term pairs listed in `goa_human.gaf` are filtered for the genes in the final hierarchy graph (approximately 750 genes in the example). Each term (annotation) that appears is thereby associated with a certain gene subset, certain leaf nodes in our weighted hierarchy tree (the edges of the hierarchy tree are weighted by a scaled level). For each such subset, the mean of the node-to-node pairwise weighted graph distances is calculated and regarded as a dispersal or coordination statistic. The statistical significance is measured with 10000-trial bootstrapping by random permutation of the gene set, with a p-value recording the fraction of the trials in which the statistic was lower than the observed value.
-
-
-
-
-
-
-
-
-
-
+**Annotation**. The Gene Ontology annotations are assessed for statistical significance as follows. The gene/term pairs listed in `goa_human.gaf` are filtered for the genes in the final hierarchy graph (approximately 750 genes in the example). Each term (annotation) that appears is thereby associated with a certain gene subset, certain leaf nodes in our weighted hierarchy tree (the edges of the hierarchy tree are weighted by a scaled level). For each such subset, the mean of the node-to-node pairwise weighted graph distances is calculated and regarded as a dispersal or coordination statistic. The statistical significance is measured with 10000-trial bootstrapping by random permutation of the gene set, with a p-value recording the fraction of the trials in which the statistic was lower than the observed value.

@@ -1,3 +1,3 @@
-R CMD INSTALL grapeplots
-R CMD build grapeplots
-R CMD check grapeplots_1.0.0.tar.gz
+R CMD INSTALL fna
+R CMD build fna
+R CMD check fna_1.0.0.tar.gz
