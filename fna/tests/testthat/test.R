@@ -1,5 +1,5 @@
 context("Basic functionality testing for network reduction code")
-library(grapeplots)
+library(fna)
 
 test_that("GMM modeling produces models with meaningful probabilities, means, and variances", {
     cat("\n")

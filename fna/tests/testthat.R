@@ -1,4 +1,4 @@
 library(testthat)
-library(grapeplots)
+library(fna)
 
-test_check("grapeplots")
+test_check("fna")
