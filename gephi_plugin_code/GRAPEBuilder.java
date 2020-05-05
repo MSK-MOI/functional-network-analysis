@@ -31,7 +31,7 @@ public class GRAPEBuilder implements FilterBuilder {
 
     @Override
     public String getName() {
-        return "GRAPE Plot";
+        return "FNA";
     }
 
     @Override
@@ -41,7 +41,7 @@ public class GRAPEBuilder implements FilterBuilder {
 
     @Override
     public String getDescription() {
-        return "GRAPE Plot";
+        return "FNA";
     }
 
     @Override

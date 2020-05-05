@@ -174,7 +174,7 @@ public class GRAPE implements EdgeFilter {
 
     @Override
     public String getName() {
-        return "GRAPE Plot";
+        return "FNA Plot";
     }
 
     @Override

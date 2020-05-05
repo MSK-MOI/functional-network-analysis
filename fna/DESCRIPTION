@@ -1,5 +1,5 @@
-Package: grapeplots
-Title: GRAPE Plots
+Package: fna
+Title: Functional Network Analysis
 Version: 1.0.0
 Authors@R: 
     person(given = "James",

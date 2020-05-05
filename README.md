@@ -81,7 +81,7 @@ and you will also need the `goa_human.gaf` annotation file available from the [E
 Example Usage <a name="Example"></a>
 -------------
 
-After installation with `install.packages("fna_1.0.0.tar.gz", repos=NULL, type="source")`, open up an R session or RStudio and then run:
+After installation with `install.packages("fna_1.0.0.tar.gz", repos=NULL, type="source")`, open up an R session or RStudio and then run: 
 
 ```
 source('lung_gtex_run.R')
