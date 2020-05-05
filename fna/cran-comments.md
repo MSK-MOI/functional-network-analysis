@@ -3,9 +3,9 @@
 * win-builder
 
 ## R CMD check results
-Checked with R-devel (...).
+Checked with R-release 4.0.0 and with R-devel 2020-05-04 r78358.
 
-There was 1 NOTE, which I ought not to try to prevent (for obvious reasons):
+There was 1 NOTE, which I think I should not try to prevent (for obvious reasons):
 
 * checking CRAN incoming feasibility ... NOTE
 Maintainer: ‘James Mathews <mathewj2@mskcc.org>’
