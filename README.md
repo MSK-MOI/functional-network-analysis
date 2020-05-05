@@ -17,7 +17,7 @@ Open up one *R session* and one *terminal session*.
 
 In R,
 ```
-install.packages(c("devtools", "roxygen2")) # If necessary
+install.packages(c("devtools", "roxygen2", "testthat")) # If necessary
 library(devtools)
 library(roxygen2)
 document('fna/')
