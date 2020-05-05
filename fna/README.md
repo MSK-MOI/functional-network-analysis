@@ -1,64 +1,15 @@
 Functional Network Analysis
 ===========================
 
-![alt text](flowchart.png)
-
 This repository contains the source code for an R package that generates weighted network models describing "functional profiles" found in a feature network. For gene networks the included [Gephi](https://gephi.org) plugin can be used to explore the models and related Gene Ontology annotations.
 
-  1. **[Build workflow](#BuildWorkflow)** (skip this if you don't want to rebuild from source)
-  2. **[Installation](#Installation)**
-  3. **[Dependency notes](#DependencyNotes)**
-  4. **[Example usage](#Example)**
-
-Build workflow <a name="BuildWorkflow"></a>
---------------
-
-Open up one *R session* and one *terminal session*.
-
-In R,
-```
-install.packages(c("devtools", "roxygen2", "testthat")) # If necessary
-library(devtools)
-library(roxygen2)
-document('fna/')
-```
-
-You might already have all the dependencies installed, but if not go to [Dependency notes](#DependencyNotes) first. In the terminal session:
-```
-R CMD INSTALL fna
-R CMD build fna
-R CMD check fna_1.0.0.tar.gz
-```
-
-or just
-```
-./build.sh
-```
-
-For the Gephi plugin, clone and set up the plugin-development repository from their [website](https://gephi.org). Choose plugin type 'Filter' when prompted. Under `src/main/java/` make directory `fna/` and copy into it all the `.java` files from `gephi_plugin_code`. Then run
-
-```
-mvn clean package
-```
-
-For the above you need a Maven installation.
-
-The `.nbm` file created somewhere in a `target` folder can be loaded directly into Gephi as a new plugin. You can select 'FNA Plot' from the 'Topology' category of filters.
+  1. **[Installation](#Installation)**
+  2. **[Example usage](#Example)**
 
 Installation <a name="Installation"></a>
 ------------
-Assuming you built/checked the R package, do the following:
 
-```
-install.packages("fna_1.0.0.tar.gz", repos=NULL, type="source")
-library(fna)
-
-help(generate_reduction) # To see usage of the main function, for example
-```
-
-Dependency notes <a name="DependencyNotes"></a>
-----------------
-
+In an R session, install the dependencies:
 ```
 install.packages(c("igraph","emdist","mclust","pbmcapply"))
 ```
@@ -75,19 +26,25 @@ For the GO annotation functionality you will need
 ```
 BiocManager::install("rols")
 ```
-
 and you will also need the `goa_human.gaf` annotation file available from the [EBI](https://www.ebi.ac.uk/GOA/downloads). `goa_human.gaf` is a somewhat large file (75mb), which is why it is not included here in this repository. For the most updated information, the script uses web API calls for the term definitions rather than a term definition file. However a partial cache file system is used to speed up repeated lookups.
+
+Finally:
+```
+install.packages("fna")
+```
+
+See the [GitHub repository](https://github.com/MSK-MedPhys-DeasyLab/functional-network-analysis) for a companion Gephi plugin.
 
 Example Usage <a name="Example"></a>
 -------------
 
-After installation with `install.packages("fna_1.0.0.tar.gz", repos=NULL, type="source")`, open up an R session or RStudio and then run: 
+Open up an R session or RStudio and then run (lung_gtex_run.R)[https://github.com/MSK-MedPhys-DeasyLab/functional-network-analysis]
 
 ```
 source('lung_gtex_run.R')
 ```
 
-This example uses lung tissue RNA expression data from GTEx. The file `example_data/lung_tissue_expression_gtex_abridged.csv` is abridged to the 1000 genes with the most variance in the original dataset available from the [GTEx portal](https://gtexportal.org/), for illustration purposes. You should see output like the following:
+This example uses lung tissue RNA expression data from GTEx. The GitHub data file `example_data/lung_tissue_expression_gtex_abridged.csv` is abridged to the 1000 genes with the most variance in the original dataset available from the [GTEx portal](https://gtexportal.org/), for illustration purposes. You should see output like the following:
 
 ```
 Calculating weighted network reduction based on
@@ -145,7 +102,5 @@ Gephi hints:
   3. Zoom out with the scroll wheel.
   4. Set the node size to be a function of the `absorption_time` attribute.
   5. Turn on labels coming from the `name` attribute.
-
-![alt text](lunggtex_hierarchy.png)
 
 **Annotation**. The Gene Ontology annotations are assessed for statistical significance as follows. The gene/term pairs listed in `goa_human.gaf` are filtered for the genes in the final hierarchy graph (approximately 750 genes in the example). Each term (annotation) that appears is thereby associated with a certain gene subset, certain leaf nodes in our weighted hierarchy tree (the edges of the hierarchy tree are weighted by a scaled level). For each such subset, the mean of the node-to-node pairwise weighted graph distances is calculated and regarded as a dispersal or coordination statistic. The statistical significance is measured with 10000-trial bootstrapping by random permutation of the gene set, with a p-value recording the fraction of the trials in which the statistic was lower than the observed value.
