@@ -1,6 +1,6 @@
 
 suppressMessages(library(igraph))
-library(grapeplots)
+library(fna)
 
 node_data_file <- c("example_data/lung_tissue_expression_gtex_abridged.csv")
 normalization <- "none"
