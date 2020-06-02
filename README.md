@@ -41,7 +41,7 @@ For the Gephi plugin, clone and set up the plugin-development repository from th
 mvn clean package
 ```
 
-For the above you need a [Maven](https://maven.apache.org/) installation.
+For the above you need a [Maven](https://maven.apache.org/) installation. Maven works on Windows and Unix/MacOS.
 
 The `.nbm` file created somewhere in a `target` folder can be loaded directly into Gephi as a new plugin. You can select 'FNA Plot' from the 'Topology' category of filters.
 
