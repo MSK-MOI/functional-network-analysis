@@ -14,3 +14,4 @@ LazyData: true
 RoxygenNote: 7.1.0
 Imports: igraph, emdist, mclust, parallel, pbmcapply, CePa, rols, stringr
 Suggests: testthat
+

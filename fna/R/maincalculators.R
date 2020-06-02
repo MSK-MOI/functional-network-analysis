@@ -73,7 +73,7 @@ gmm_model_an_edge <- function(edge, data, number_of_gmm_populations = 3) {
             return(list(probabilities = ps$pro, mean = ps$mean, sigma = ps$variance$sigma))
         },
         error=function(err){
-            cat(paste0("       Modeling failed for (", edge[1], ", ", edge[2], ")"))
+            # cat(paste0("       Modeling failed for (", edge[1], ", ", edge[2], ")"))
             return(NULL)
         })
 }
