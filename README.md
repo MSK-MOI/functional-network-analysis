@@ -35,7 +35,7 @@ or just
 ./build.sh
 ```
 
-For the Gephi plugin, clone and set up the plugin-development repository from their [website](https://gephi.org). Choose plugin type 'Filter' when prompted. Under `src/main/java/` make directory `fna/` and copy into it all the `.java` files from `gephi_plugin_code`. Then run
+For the Gephi plugin, clone and set up the plugin-development repository from their [website](https://github.com/gephi/gephi-plugins). Choose plugin type 'Filter' when prompted. Under `src/main/java/` make directory `fna/` and copy into it all the `.java` files from `gephi_plugin_code`. Then run
 
 ```
 mvn clean package
