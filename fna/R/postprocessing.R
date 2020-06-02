@@ -20,13 +20,17 @@ suppressMessages(library(rols)) # Gotten from BiocManager::install("rols")
 #' @param cluster_file 2-column CSV file describing a sample clustering.
 #' @param correlation_transformation (optional) (see \link{generate_reduction}).
 #' @param normalization Normalization for the data set (see \link{generate_reduction}).
+#' @param verbose (optional) Whether to print messages to console. Default FALSE.
+#' @param log_file (optional) A file to log messages. Default NA.
 #' @return \code{graph}
 #' @export
 annotate_with_clusters <- function(graph,
                                    node_data_file,
                                    cluster_file,
                                    correlation_transformation=c("none", "pearson", "spearman"),
-                                   normalization=c("dividebymean", "zscore", "none")
+                                   normalization=c("dividebymean", "zscore", "none"),
+                                   verbose=FALSE,
+                                   log_file=NA
                                    ) {
     correlation_transformation <- match.arg(correlation_transformation)
     normalization <- match.arg(normalization)
@@ -54,7 +58,7 @@ annotate_with_clusters <- function(graph,
 
         profiles <- list()
         fac <- as.factor(assignments[,"cluster"])
-        cat(paste0("Annotating based on ", length(all_ids), " samples (of ", dim(data)[1]," total possible) in groups of sizes:\n", paste(as.vector(table(fac)), collapse=" "), "\n"))
+        log_message(paste0("Annotating based on ", length(all_ids), " samples (of ", dim(data)[1]," total possible) in groups of sizes:\n", paste(as.vector(table(fac)), collapse=" "), "\n"), verbose=verbose, log_file=log_file)
         for(i in 1:length(fac)) {
             level_i <- levels(fac)[i]
             ids_i <- intersect(assignments[assignments[,"cluster"]==level_i, "id"], all_ids)
@@ -114,8 +118,10 @@ annotate_graphml_with_feature_clusters <- function(graphml_file, feature_cluster
 #' @param outdir Subdirectory for output (default NA, meaning current directory).
 #' @param rename If FALSE, does not give a new name to the output file (possibly overwriting the input GraphML file). If TRUE, renames with "_annotated" appended to filename (default TRUE).
 #' @param linelimit (optional) Limit on number of lines of gaf_file to read. Default NA (no limit).
+#' @param verbose (optional) Whether to print messages to console. Default FALSE.
+#' @param log_file (optional) A file to log messages. Default NA.
 #' @export
-gaf_annotate_graphml <- function(graphml_file, gaf_file="goa_human.gaf", outdir=NA, rename=TRUE, linelimit=NA) {
+gaf_annotate_graphml <- function(graphml_file, gaf_file="goa_human.gaf", outdir=NA, rename=TRUE, linelimit=NA, verbose=FALSE, log_file=NA) {
     #warning("igraph library's GraphML parser doesn't always load edge attributes from GraphML.")
     if(!grepl("\\.(graphml|GRAPHML)$", graphml_file)) {
         warning("graphml_file not recognized as being in GraphML file format.")
@@ -152,8 +158,10 @@ gaf_annotate_graphml <- function(graphml_file, gaf_file="goa_human.gaf", outdir=
 #' @param gaf_file GAF (Gene Annotation Format) file (default \code{goa_human.gaf}) to get annotations from.
 #' @param offline (optional) If FALSE, will use package 'rols' to make web queries to lookup GO terms. If TRUE will only use local cache file 'go_terms_local.cache' (default FALSE).
 #' @param linelimit (optional) Limit on number of lines of gaf_file to read. Default NA (no limit).
+#' @param verbose (optional) Whether to print messages to console. Default FALSE.
+#' @param log_file (optional) A file to log messages. Default NA.
 #' @export
-gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, linelimit=NA) {
+gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, linelimit=NA, verbose=FALSE, log_file=NA) {
     if(!grepl("\\.(gaf|GAF)$", gaf_file)) {
         warning("gaf_file not recognized as being in GAF file format.")
         return()
@@ -251,7 +259,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
     }
 
     number_lines <- as.integer(str_extract(system(paste("wc", "-l", gaf_file), intern=TRUE), "\\d+"))
-    cat(paste0(number_lines, " lines to scan."))
+    log_message(paste0(number_lines, " lines to scan."), verbose=verbose, log_file=log_file)
 
     l <- c(rep(NA, number_lines))
     hugo_name <- l
@@ -276,7 +284,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
     k <- 1
     i <- 1
 
-    cat("\n")
+    log_message("\n", verbose=verbose, log_file=log_file)
     start_time <- Sys.time()
     while(TRUE) {
         if(!is.na(linelimit)) {
@@ -290,7 +298,9 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
         stop_time <- Sys.time()
         elapsed <- format(round(difftime(stop_time, start_time, 2, units="mins"), 2), nsmall = 2)
         estimate <- format(round((number_lines/i)*difftime(stop_time, start_time, units="mins"), 2), nsmall=2) 
-        cat(paste0(k-1, " relevant lines found in ", gaf_file, " out of ", i, " total lines read. (Elapsed ", elapsed, " of expected total ", estimate, ")\r"))
+        if(verbose) {
+            cat(paste0(k-1, " relevant lines found in ", gaf_file, " out of ", i, " total lines read. (Elapsed ", elapsed, " of expected total ", estimate, ")\r"))
+        }
 
         line <- readLines(connection, n=1, warn=FALSE)
         if(is.na(line) || length(line)==0) {
@@ -333,7 +343,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
         k <- k + 1
     }
     close(connection)
-    cat("\n")
+    log_message("\n", verbose=verbose, log_file=log_file)
 
     if(!offline) {
         saveRDS(list(lookedup_label, lookedup_description), "go_terms_local.cache")
@@ -388,7 +398,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
         tb[[k]] <- data.frame(average_stat=per_node_cluster_means[1:max_levels], pvalues=pvalues[1:max_levels], number_genes=number_genes[1:max_levels], stringsAsFactors=FALSE)
         rownames(tb[[k]]) <- names(per_node_cluster_means[1:max_levels])
         tb[[k]] <- tb[[k]][order(tb[[k]][,"pvalues"]),]
-        cat(aspects[k])
+        log_message(aspects[k], verbose=verbose, log_file=log_file)
         print(head(tb[[k]], n=10))
         write.table(tb[[k]], paste0("log", aspects[k], ".txt"), quote=FALSE, row.names=TRUE)
 
@@ -405,7 +415,7 @@ gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, 
             vertex_attr(graph, paste0("GOA", attribute_index, "::p=", signif(pvalues[annotationi], digits=3), "::", annotationi), V(graph)[namesfilter]) <- "TRUE"
             vertex_attr(graph, paste0("GOA", attribute_index, "::p=", signif(pvalues[annotationi], digits=3), "::", annotationi), V(graph)[!namesfilter]) <- "FALSE"
         }
-        cat("\n\n")
+        log_message("\n\n", verbose=verbose, log_file=log_file)
 
     }
 

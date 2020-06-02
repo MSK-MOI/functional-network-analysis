@@ -7,9 +7,7 @@ test_that("GMM modeling produces models with meaningful probabilities, means, an
     colnames(data) <- paste0("node", c(1:5))
     edge <- c("node2", "node4")
 
-    sink("~/.tmp.saux") # This prevents messages from disrupting the test flow
     gmm <- gmm_model_an_edge(edge, data, number_of_gmm_populations = 3)
-    sink(NULL)
 
     expect_is(gmm$probabilities, "numeric")
     expect_equal(length(gmm$probabilities), 3)

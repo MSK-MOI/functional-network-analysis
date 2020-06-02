@@ -88,9 +88,7 @@ check_numeric <- function(variable) {
 
 create_igraph <- function(edge_list_file) {
     if(grepl("\\.(graphml|GRAPHML)$", edge_list_file)) {
-        cat("TRY\n")
         graph <- igraph::simplify(read_graph(edge_list_file, format = "graphml"))
-        cat("PASS\n")
     } else if(grepl("\\.(ncol|NCOL)$", edge_list_file)) {
         graph <- igraph::simplify(read_graph(edge_list_file, format = "ncol", directed = FALSE))
     } else {
@@ -99,7 +97,7 @@ create_igraph <- function(edge_list_file) {
     return(graph)
 }
 
-get_common_names <- function(data, graph) {
+get_common_names <- function(data, graph, verbose=FALSE, log_file=NA) {
     node_names <-V(graph)$name
     sample_attribute_names <- colnames(data)
 
@@ -110,24 +108,24 @@ get_common_names <- function(data, graph) {
     if(length(nodes) <= 3) {
         stop("3 or fewer nodes in the network with data.")
     }
-    cat(paste0("      Number of nodes in network not in the data set: ", length(d1), "\n"))
+    log_message(paste0("      Number of nodes in network not in the data set: ", length(d1), "\n"), verbose=verbose, log_file=log_file)
     if(length(d1) > 0) {
-        cat(paste0("      ", paste0(d1[1:min(length(d1), 5)], collapse=" ") ))
+        log_message(paste0("      ", paste0(d1[1:min(length(d1), 5)], collapse=" ") ), verbose=verbose, log_file=log_file)
         if(length(d1) > 5) {
-            cat(" ...")
+            log_message(" ...", verbose=verbose, log_file=log_file)
         }
-        cat("\n")
+        log_message("\n", verbose=verbose, log_file=log_file)
     }
-    cat(paste0("      Number of nodes in the data set not in the network: ", length(d2), "\n"))
+    log_message(paste0("      Number of nodes in the data set not in the network: ", length(d2), "\n"), verbose=verbose, log_file=log_file)
     if(length(d2) > 0) {
-        cat(paste0("      ", paste0(d2[1:min(length(d2), 5)], collapse=" ") ))
+        log_message(paste0("      ", paste0(d2[1:min(length(d2), 5)], collapse=" ") ), verbose=verbose, log_file=log_file)
         if(length(d2) > 5) {
-            cat(" ...")
+            log_message(" ...", verbose=verbose, log_file=log_file)
         }
-        cat("\n")
+        log_message("\n", verbose=verbose, log_file=log_file)
     }
 
-    cat(paste0("      Number of nodes in common: ", length(nodes), "\n"))
+    log_message(paste0("      Number of nodes in common: ", length(nodes), "\n"), verbose=verbose, log_file=log_file)
     return(nodes)
 }
 
@@ -196,3 +194,12 @@ linkage_index_to_name <- function(index, node_names) {
     return("No name")
 }
 
+log_message <- function(message, verbose=FALSE, log_file = NA) {
+    if(verbose) {
+        cat(message)
+    } else {
+        if(!is.na(log_file)) {
+            write(message, file=log_file, append=TRUE)
+        }
+    }
+}

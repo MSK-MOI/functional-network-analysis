@@ -47,12 +47,13 @@ synthesize_node_data <- function(graph, iterations=50, seeds=NA, trials=NA) {
 #' @param correlation_cutoff (optional) A Pearson correlation cutoff value, from 0 to 1. Default 0.75
 #' @param connectivity_cutoff (optional) A desired edge connectivity for the resulting graph, from 0 to 1.
 #' @param edge_limit (optional) A hard limit on the number of edges that will be present in the resulting graph. Default 100000, set to NA if you want no limit
-#' @param log_place (optional) A file/connection to log messages. Default \code{stdout()}.
+#' @param verbose (optional) Whether to print messages to console. Default FALSE.
+#' @param log_file (optional) A file to log messages. Default NA.
 #' @return An igraph object whose node names come from column names in \code{data}
-infer_igraph <- function(data, correlation_cutoff=0.75, connectivity_cutoff=NA, edge_limit=100000, log_place=stdout()) {
-    cat(paste0("      Data set ", dim(data)[1], "x", dim(data)[2]), file=log_place, append=TRUE)
+infer_igraph <- function(data, correlation_cutoff=0.75, connectivity_cutoff=NA, edge_limit=100000, verbose=FALSE, log_file=NA) {
+    log_message(paste0("      Data set ", dim(data)[1], "x", dim(data)[2]), verbose=verbose, log_file=log_file)
     if(all(apply(data, MARGIN = c(1,2), FUN = function(x){is.numeric(x) && !is.na(x)}))) {
-        cat(paste0(" all numeric.\n"), file=log_place, append=TRUE)
+        log_message(paste0(" all numeric.\n"), verbose=verbose, log_file=log_file)
     } else {
         stop("Data set improperly formatted; not all numeric, or with NAs.")
     }
@@ -60,13 +61,13 @@ infer_igraph <- function(data, correlation_cutoff=0.75, connectivity_cutoff=NA, 
     variances <- sapply(1:dim(data)[2], FUN=function(i){return(var(data[,i]))})
     number_of_trivial_variables <- sum(variances == 0)
     if(number_of_trivial_variables > 0) {
-        cat(paste0("      Found ", number_of_trivial_variables, " trivial variables (with zero variance):\n"))
-        cat(paste0(c("      ", colnames(data)[variances == 0], "\n"), collapse=" "))
+        log_message(paste0("      Found ", number_of_trivial_variables, " trivial variables (with zero variance):\n"), verbose=verbose, log_file=log_file)
+        log_message(paste0(c("      ", colnames(data)[variances == 0], "\n"), collapse=" "), verbose=verbose, log_file=log_file)
     }
     data <- data[, variances!=0]
 
     correlations <- abs(cor(data, method="pearson", use="complete.obs"))
-    cat(paste0("      Calculated correlations (", dim(correlations)[1], "x", dim(correlations)[2], ")\n"), file=log_place, append=TRUE)
+    log_message(paste0("      Calculated correlations (", dim(correlations)[1], "x", dim(correlations)[2], ")\n"), verbose=verbose, log_file=log_file)
     number_nodes <- dim(correlations)[1]
     if(!is.na(correlation_cutoff) && !is.na(connectivity_cutoff)) {
         stop("Cannot specify both a correlation cutoff and a connectivity cutoff.\n")
@@ -92,7 +93,7 @@ infer_igraph <- function(data, correlation_cutoff=0.75, connectivity_cutoff=NA, 
         cutoff_value <- values[cutoff_index]
     }
 
-    cat(paste0("      Cutoff value for correlation: ", cutoff_value, "\n"), file=log_place, append=TRUE)
+    log_message(paste0("      Cutoff value for correlation: ", cutoff_value, "\n"), verbose=verbose, log_file=log_file)
     edge_list <- c(rep("", 2*(number_nodes-1)*number_nodes/2))
     index <- 1
     if(any(is.na(correlations))) {
@@ -104,12 +105,14 @@ infer_igraph <- function(data, correlation_cutoff=0.75, connectivity_cutoff=NA, 
     }
 
     start_time <- Sys.time()
-    cat("\n")    
+    log_message("\n", verbose=verbose, log_file=log_file)    
     for(i in 1:number_nodes) {
         stop_time <- Sys.time()
         elapsed <- format(round(difftime(stop_time, start_time, 2, units="mins"), 2), nsmall = 2)
         estimate <- format(round((number_nodes/i)*difftime(stop_time, start_time, units="mins"), 2), nsmall=2) 
-        cat(paste0(i, " nodes processed of ", number_nodes, " (Elapsed ", elapsed, " of expected total ", estimate, ")\r"))
+        if(verbose) {
+            cat(paste0(i, " nodes processed of ", number_nodes, " (Elapsed ", elapsed, " of expected total ", estimate, ")\r"))
+        }
 
         for(j in i:number_nodes){
             if(adjacency[i,j] && j>i) {
@@ -125,19 +128,19 @@ infer_igraph <- function(data, correlation_cutoff=0.75, connectivity_cutoff=NA, 
         }
         if(!is.na(edge_limit)) {
             if(index > 2*edge_limit) {
-                cat(paste0("      Reached edge_limit ", edge_limit, ".\n"), file=log_place, append=TRUE)
+                log_message(paste0("      Reached edge_limit ", edge_limit, ".\n"), verbose=verbose, log_file=log_file)
                 break
             }
         }
     }
-    cat("\n")
+    log_message("\n", verbose=verbose, log_file=log_file)
     edge_list <- edge_list[1:(index-1)] # Since the correct number of edges might not be *exactly* as predicted by the calculation of cutoff_index
     n <- length(edge_list)/2
-    cat(paste0("      Inferred ", n, " edges, out of possible ", (number_nodes-1) * number_nodes *0.5, ", with connectivity ", n/((number_nodes-1)*number_nodes * 0.5), "\n" ), file=log_place, append=TRUE)
+    log_message(paste0("      Inferred ", n, " edges, out of possible ", (number_nodes-1) * number_nodes *0.5, ", with connectivity ", n/((number_nodes-1)*number_nodes * 0.5), "\n" ), verbose=verbose, log_file=log_file)
     inferred <- make_graph(edge_list, directed=FALSE)
-    cat(paste0("      Support of inferred graph contains ", length(V(inferred)), " nodes.\n"), file=log_place, append=TRUE)
-    cat(paste0("      Average degree ", mean(degree(inferred)), ".\n"), file=log_place, append=TRUE)
-    cat(paste0("      Diameter ", diameter(inferred), ".\n"), file=log_place, append=TRUE)
+    log_message(paste0("      Support of inferred graph contains ", length(V(inferred)), " nodes.\n"), verbose=verbose, log_file=log_file)
+    log_message(paste0("      Average degree ", mean(degree(inferred)), ".\n"), verbose=verbose, log_file=log_file)
+    log_message(paste0("      Diameter ", diameter(inferred), ".\n"), verbose=verbose, log_file=log_file)
     return(inferred)
 }
 
@@ -243,9 +246,10 @@ calculate_edge_pair_distances_based_at <- function(k, index_adjacency, edge_mode
 #' 
 #' For each pair of two nodes connected by some triangle, finds the average GMT (W2+GMM) distance among all such triangles.
 #' @param eps The edge pair statistics data frame as returned by \code{calculate_edge_pair_statistics}
-#' @param log_place File/connection for messages.
+#' @param verbose (optional) Whether to print messages to console. Default FALSE.
+#' @param log_file (optional) A file to log messages. Default NA.
 #' @return A big 'ol data frame of 'virtual' edges, with \code{source}, \code{target}, and \code{average distance} columns
-calculate_average_distance_over_triangles <- function(eps, log_place=stdout()) {
+calculate_average_distance_over_triangles <- function(eps, verbose=FALSE, log_file=NA) {
     # *Replace with factor-based version
     eps$average_distance <- c(rep(-1,nrow(eps)))
     eps$distance <- as.numeric(eps$distance)
@@ -254,7 +258,7 @@ calculate_average_distance_over_triangles <- function(eps, log_place=stdout()) {
     end1 <- eps$endpoint1
     end2 <- eps$endpoint2
     dists <- eps$distance
-    cat("\n", file=log_place, append=TRUE)
+    log_message("\n", verbose=verbose, log_file=log_file)
     for(i in 2:nrow(eps)) {
         if( (end1[i-1] == end1[i]) && (end2[i-1] == end2[i]) ) {
             tally <- tally + dists[i]
@@ -264,9 +268,11 @@ calculate_average_distance_over_triangles <- function(eps, log_place=stdout()) {
             tally <- dists[i]
             count <- 1
         }
-        cat(paste0("\r      ", i, " of ", nrow(eps), " edge pairs collated."), file=log_place, append=TRUE)
+        if(verbose) {
+            cat(paste0("\r      ", i, " of ", nrow(eps), " edge pairs collated."))
+        }
     }
-    cat("\n", file=log_place, append=TRUE)
+    log_message("\n", verbose=verbose, log_file=log_file)
     eps[nrow(eps),"average_distance"] <- tally/count
 
     virtual_edges <- eps[eps$average_distance != -1, c("endpoint1","endpoint2","average_distance")]

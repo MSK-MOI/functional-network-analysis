@@ -6,12 +6,12 @@ Authors@R:
            family = "Mathews",
            role = c("aut", "cre"),
            email = "mail@jmath.read-books.org",
-           comment = c(ORCID = "0000-0002-8247-7536"))
+           comment = c(ORCID = "0000-0002-8247-7536", email2= "mathewj2@mskcc.org"))
 Description: Given a network of features for numerical data samples, a reduction hierarchy is generated with respect to a choice of comparison metric between two bivariate joint distributions. The currently implemented metric is Gaussian Mixture Transport distance. This package was developed in support of the article "Functional Network Analysis Reveals An Immune Tolerance Mechanism In Cancer".
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.0
 Imports: igraph, emdist, mclust, parallel, pbmcapply, CePa, rols, stringr
-Suggests: 
-    testthat
+Suggests: testthat
+
