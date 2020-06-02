@@ -1,4 +1,4 @@
-# Contact: Jimmy  mathewj2@mskcc.org
+# Contact: Jimmy mathewj2@mskcc.org
 
 #' @import igraph
 #' @import parallel
