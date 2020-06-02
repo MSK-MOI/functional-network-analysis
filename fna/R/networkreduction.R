@@ -119,6 +119,7 @@ generate_reduction <- function(node_data_file=NA,
         if(is.na(core_number) || !is.na(mc.cores)) {
             log_message(paste0("      Trying ", mc.cores, " cores, as requested.\n"), verbose=verbose, log_file=log_file)
         } else {
+            mc.cores <- ifelse(is.na(mc.cores), 1, mc.cores)
             log_message(paste0("      Number of cores according to parallel::detectCores(): ", core_number, "\n"), verbose=verbose, log_file=log_file)
             log_message(paste0("      Trying ", max(mc.cores, core_number-1), ".\n"), verbose=verbose, log_file=log_file)
             mc.cores <- max(mc.cores, core_number-1)

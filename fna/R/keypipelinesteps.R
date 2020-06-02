@@ -269,7 +269,7 @@ calculate_average_distance_over_triangles <- function(eps, verbose=FALSE, log_fi
             count <- 1
         }
         if(verbose) {
-            cat(paste0("\r      ", i, " of ", nrow(eps), " edge pairs collated."), file=log_file, append=TRUE)
+            cat(paste0("\r      ", i, " of ", nrow(eps), " edge pairs collated."))
         }
     }
     log_message("\n", verbose=verbose, log_file=log_file)
