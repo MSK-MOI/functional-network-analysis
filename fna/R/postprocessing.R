@@ -158,8 +158,10 @@ gaf_annotate_graphml <- function(graphml_file, gaf_file="goa_human.gaf", outdir=
 #' @param gaf_file GAF (Gene Annotation Format) file (default \code{goa_human.gaf}) to get annotations from.
 #' @param offline (optional) If FALSE, will use package 'rols' to make web queries to lookup GO terms. If TRUE will only use local cache file 'go_terms_local.cache' (default FALSE).
 #' @param linelimit (optional) Limit on number of lines of gaf_file to read. Default NA (no limit).
+#' @param verbose (optional) Whether to print messages to console. Default FALSE.
+#' @param log_file (optional) A file to log messages. Default NA.
 #' @export
-gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, linelimit=NA) {
+gaf_annotate_igraph <- function(graph, gaf_file="goa_human.gaf", offline=FALSE, linelimit=NA, verbose=FALSE, log_file=NA) {
     if(!grepl("\\.(gaf|GAF)$", gaf_file)) {
         warning("gaf_file not recognized as being in GAF file format.")
         return()
