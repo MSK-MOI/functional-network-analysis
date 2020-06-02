@@ -1,16 +1,17 @@
 
 suppressMessages(library(igraph))
-library(grapeplots)
+library(fna)
 
-node_data_file <- c("example_data/lung_tissue_expression_gtex_abridged.csv")
+node_data_file <- c("example_data/lung_tissue_expression_gtex_abridged_300.csv")
 normalization <- "none"
 topology_file <- c(NA)
 
-results <- generate_reduction(node_data_file, topology_file=topology_file, correlation_cutoff=0.65)
-write_graph(results$graph, "example_data/lung_gtex_weighted_1000.graphml", format = "graphml")
-write_graph(results$hierarchy, "example_data/lung_gtex_hierarchy_1000.graphml", format = "graphml")
+results <- generate_reduction(node_data_file, topology_file=topology_file, correlation_cutoff=0.65, verbose=TRUE) # log_file="log.txt"
+write_graph(results$graph, "example_data/lung_gtex_weighted_300.graphml", format = "graphml")
+write_graph(results$hierarchy, "example_data/lung_gtex_hierarchy_300.graphml", format = "graphml")
 
-gaf_annotate_graphml("example_data/lung_gtex_hierarchy_1000.graphml")
+# Requires download of goa_human.gaf
+# gaf_annotate_graphml("example_data/lung_gtex_hierarchy_300.graphml", verbose=TRUE)
 
 
 

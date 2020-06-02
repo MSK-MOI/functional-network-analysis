@@ -41,7 +41,7 @@ generate_reduction <- function(node_data_file=NA,
                                correlation_transformation=c("none", "pearson", "spearman"),
                                normalization=c("none", "zscore", "dividebymean"),
                                method=c("gmt", "simplecorrelation"),
-                               mc.cores=1,
+                               mc.cores=NA,
                                verbose=FALSE,
                                log_file=NA
                                ) {
@@ -116,7 +116,7 @@ generate_reduction <- function(node_data_file=NA,
         log_message("\n", verbose=verbose, log_file=log_file)
         log_message("[3/6] Fitting Gaussian mixture models\n", verbose=verbose, log_file=log_file)
         core_number <- parallel::detectCores()
-        if(is.na(core_number)) {
+        if(is.na(core_number) || !is.na(mc.cores)) {
             log_message(paste0("      Trying ", mc.cores, " cores, as requested.\n"), verbose=verbose, log_file=log_file)
         } else {
             log_message(paste0("      Number of cores according to parallel::detectCores(): ", core_number, "\n"), verbose=verbose, log_file=log_file)
