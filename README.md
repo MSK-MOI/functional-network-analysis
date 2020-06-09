@@ -90,7 +90,7 @@ The `.nbm` file created can be loaded directly into Gephi as a new plugin. It is
 gephi-plugins/modules/FunctionalNetworkAnalysis/target/fna-0.9.0.nbm
 ```
 
-To use it, you can select 'Feature Network Reduction' from the 'Topology' category of filters when you are viewing a `graphml` file which is output of the FNA pipeline.
+To use it, you can select 'Feature Network Reduction' from the 'Topology' category of filters when you are viewing a `graphml` file which is output of the FNA pipeline. You may find that the performance is improved by [increasing the memory available to Gephi](https://gephi.org/users/install/#memory).
 
 Installation <a name="Installation"></a>
 ------------
