@@ -55,9 +55,28 @@ no
 
 Note that on some systems, due to some sort of bug with their maven plugin, the prompt questions indicated in the Gephi plugin development documentation may not appear. In this case you need to enter the answers 'blind', as shown above.
 
-Copy the directory `functional-network-analysis/gephi_plugin_code/fna` (containing source files) this repository into the new folder created after configuration: `gephi-plugins/modules/FunctionalNetworkAnalysis/src/main/java`.
+Copy the directory
 
-Then run, from the top level (`gephi-plugins`):
+```
+functional-network-analysis/gephi_plugin_code/fna
+```
+(containing source files) from this repository into the new folder created after configuration,
+
+```
+gephi-plugins/modules/FunctionalNetworkAnalysis/src/main/java
+```
+Then copy 
+
+```
+functional-network-analysis/gephi_plugin_code/pom.xml
+```
+into
+
+```
+gephi-plugins/modules/FunctionalNetworkAnalysis/
+```
+
+Finally, from the top level (`gephi-plugins`), run:
 
 ```
 mvn clean package
