@@ -35,7 +35,7 @@ or just
 ./build.sh
 ```
 
-**Gephi plugin**. Clone and set up the plugin-development repository from [https://github.com/gephi/gephi-plugins](https://github.com/gephi/gephi-plugins) by following directions for 'create a plugin'. Use the following answers to the 13 questions that appear after running `mvn org.gephi:gephi-maven-plugin:generate`:
+**Gephi plugin** (*optional*). Clone and set up the plugin-development repository from [https://github.com/gephi/gephi-plugins](https://github.com/gephi/gephi-plugins) by following directions for 'create a plugin'. Use the following answers to the 13 questions that appear after running `mvn org.gephi:gephi-maven-plugin:generate`:
 
 '''
 org.msk
