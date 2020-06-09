@@ -1,4 +1,6 @@
-package grapeplots;
+package org.msk.supernodehierarchy;
+
+// Copyright (C) by Andrea Carboni.
 
 import java.awt.Color;
 import java.awt.Component;

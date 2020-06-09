@@ -35,7 +35,29 @@ or just
 ./build.sh
 ```
 
-For the Gephi plugin, clone and set up the plugin-development repository from their [website](https://github.com/gephi/gephi-plugins). Choose plugin type 'Filter' when prompted. Under `src/main/java/` make directory `fna/` and copy into it all the `.java` files from `gephi_plugin_code`. Then run
+**Gephi plugin**. Clone and set up the plugin-development repository from [https://github.com/gephi/gephi-plugins](https://github.com/gephi/gephi-plugins) by following directions for 'create a plugin'. Use the following answers to the 13 questions that appear after running `mvn org.gephi:gephi-maven-plugin:generate`:
+
+'''
+org.msk
+fna
+0.9.0
+FunctionalNetworkAnalysis
+Functional Network Analysis
+Filter
+Jimmy Mathews
+<enter>
+<enter>
+Apache 2.0
+Viewer for results of FNA analysis.
+Displays based on topology and edge weights coming from FNA. May also show annotations.
+no
+'''
+
+Note that on some systems, due to some sort of bug with their maven plugin, the prompt questions indicated in the Gephi plugin development documentation may not appear. In this case you need to enter the answers 'blind', as shown above.
+
+Copy the directory `functional-network-analysis/gephi_plugin_code/fna` (containing source files) this repository into the new folder created after configuration: `gephi-plugins/modules/FunctionalNetworkAnalysis/src/main/java`.
+
+Then run, from the top level (`gephi-plugins`):
 
 ```
 mvn clean package
@@ -43,7 +65,13 @@ mvn clean package
 
 For the above you need a [Maven](https://maven.apache.org/) installation. Maven works on Windows and Unix/MacOS.
 
-The `.nbm` file created somewhere in a `target` folder can be loaded directly into Gephi as a new plugin. You can select 'FNA Plot' from the 'Topology' category of filters.
+The `.nbm` file created can be loaded directly into Gephi as a new plugin. It is located at:
+
+'''
+gephi-plugins/modules/FunctionalNetworkAnalysis/target/fna-0.9.0.nbm
+'''
+
+To use it, you can select 'Feature Network Reduction' from the 'Topology' category of filters when you are viewing a `graphml` file which is output of the FNA pipeline.
 
 Installation <a name="Installation"></a>
 ------------

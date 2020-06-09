@@ -1,4 +1,4 @@
-package grapeplots;
+package org.msk.supernodehierarchy;
 
 import org.gephi.filters.spi.Filter;
 import java.awt.event.ItemListener;
@@ -13,10 +13,10 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 
+
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.JLabel;
-import javax.swing.JCheckBox;
 import javax.swing.JScrollPane;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
@@ -36,20 +36,26 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GRAPEPanel extends JPanel implements ItemListener, ActionListener{
+public class EvolutionFilterPanel extends javax.swing.JPanel implements ChangeListener, ItemListener, ActionListener{
  
-    private GRAPE filter;
-    private JCheckBox[] checkbox;
+    private EvolutionFilter filter;
+    private javax.swing.JCheckBox[] checkbox;
     private ColorIcon[] coloricons;
+    private javax.swing.JSlider slider0;
+    private javax.swing.JSlider slider1;
+    private javax.swing.JSlider slider2;
+    private javax.swing.JSlider slider00;
     private JScrollPane scrollPane;
     private JFrame legend;
 
-    public GRAPEPanel(GRAPE filter) {
+    public EvolutionFilterPanel(EvolutionFilter filter) {
         this.filter = filter;
  
+        // Boolean state = checkbox.isSelected();
         legend = new JFrame();        
         JPanel checkboxes_pane = new JPanel();
-        checkboxes_pane.setLayout(new BoxLayout(checkboxes_pane, BoxLayout.Y_AXIS));
+        checkboxes_pane.setLayout(new BoxLayout(checkboxes_pane, javax.swing.BoxLayout.Y_AXIS));
+        // checkboxes_pane.setPreferredSize(new Dimension(450, 6500));
         scrollPane = new JScrollPane(checkboxes_pane);
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         scrollPane.setPreferredSize(new Dimension(450, 4000));
@@ -58,7 +64,7 @@ public class GRAPEPanel extends JPanel implements ItemListener, ActionListener{
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         JPanel aspect_pane = new JPanel();
-        aspect_pane.setLayout(new BoxLayout(aspect_pane, BoxLayout.X_AXIS));
+        aspect_pane.setLayout(new BoxLayout(aspect_pane, javax.swing.BoxLayout.X_AXIS));
         JCheckBox option1 = new JCheckBox("Component");
         JCheckBox option2 = new JCheckBox("Function");
         JCheckBox option3 = new JCheckBox("Process");
@@ -75,11 +81,36 @@ public class GRAPEPanel extends JPanel implements ItemListener, ActionListener{
         figure_generate.addActionListener(this);
         figure_generate.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 
-        this.add(figure_generate);
-        this.add(aspect_pane);
-        this.add(scrollPane);
+        // this.add(figure_generate);
+        // this.add(aspect_pane);
+        // this.add(scrollPane);
+        // add(new JLabel("Component, Function, Process (100 each)"));
 
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        // Hashtable labelTable = new Hashtable();
+        // labelTable.put( new Integer( 0 ), new JLabel("-2") );
+        // labelTable.put( new Integer( 100 ), new JLabel("0") );
+        // labelTable.put( new Integer( 200 ), new JLabel("2") );
+        setLayout(new BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
+
+        slider00 = new javax.swing.JSlider(0, 200);
+        // slider0.setLabelTable(labelTable);
+        add(new JLabel("Calculated weights vs. Constant")); // vs. Correlation
+        add(slider00);
+ 
+        slider0 = new javax.swing.JSlider(0, 200);
+        //slider0.setLabelTable(labelTable);
+        add(new JLabel("Level"));
+        add(slider0);
+
+        slider1 = new javax.swing.JSlider(0, 200);
+        //slider1.setLabelTable(labelTable);
+        add(new JLabel("Bandwidth"));
+        add(slider1);
+
+        slider2 = new javax.swing.JSlider(0, 200);
+        //slider2.setLabelTable(labelTable);
+        add(new JLabel("Ordinary edge weight"));
+        add(slider2);
 
         JButton grabber = new JButton("Grab annotations");
         grabber.setActionCommand("grab");
@@ -149,6 +180,11 @@ public class GRAPEPanel extends JPanel implements ItemListener, ActionListener{
             checkboxes_pane.add(row);
         }
  
+        // checkbox.addChangeListener(this);
+        //slider00.addChangeListener(this);
+        slider0.addChangeListener(this);
+        slider1.addChangeListener(this);
+        slider2.addChangeListener(this);
         revalidate();
         repaint();
     }
@@ -179,13 +215,34 @@ public class GRAPEPanel extends JPanel implements ItemListener, ActionListener{
         }
     }
 
+    public void stateChanged(ChangeEvent e) {
+        double t;
+        FilterProperty p0 = filter.getProperties()[0];
+        t = slider0.getValue()/200.0;
+        p0.setValue(filter.getMin() + t*(filter.getMax()-filter.getMin()));
+
+        FilterProperty p1 = filter.getProperties()[1];
+        t = slider1.getValue()/200.0;
+        p1.setValue(filter.getBandwidthMin() + t*(filter.getBandwidthMax()-filter.getBandwidthMin()));
+
+        FilterProperty p2 = filter.getProperties()[2];
+        t = slider2.getValue()/200.0;
+        p2.setValue(filter.getOrdinaryWeightMin() + t*(filter.getOrdinaryWeightMax()-filter.getOrdinaryWeightMin()));
+
+        FilterProperty p3 = filter.getProperties()[3];
+        t = slider00.getValue()/200.0;
+        p3.setValue(filter.getUsingCorrelationMin() + t*(filter.getUsingCorrelationMax()-filter.getUsingCorrelationMin()));
+    }
+
     public void itemStateChanged(ItemEvent e) {
         if(e.getStateChange() == ItemEvent.SELECTED) {
+            System.out.println("selected item");
             JCheckBox c = (JCheckBox)e.getItem();
             String l = c.getLabel();
             filter.setNewStatus(l, true);
         }
         if(e.getStateChange() == ItemEvent.DESELECTED) {
+            System.out.println("deselected item");
             JCheckBox c = (JCheckBox)e.getItem();
             String l = c.getLabel();
             filter.setNewStatus(l, false);
@@ -207,6 +264,7 @@ public class GRAPEPanel extends JPanel implements ItemListener, ActionListener{
             System.err.println(a);
             System.err.println(e);
         }
+        //...
     }
 
     public void generateLegend() {

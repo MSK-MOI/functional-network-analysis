@@ -1,4 +1,4 @@
-package grapeplots;
+package org.msk.supernodehierarchy;
 
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -11,7 +11,7 @@ import org.openide.util.lookup.ServiceProvider;
 import org.gephi.project.api.Workspace;
 
 /**
- * Filter builder for the {@link GRAPE} filter.
+ * Filter builder for the {@link EvolutionFilter} filter.
  * <p>
  * This class configures how the filter should be integrated. It specifies it
  * belongs to the edge category, the name, icon and description.
@@ -22,7 +22,7 @@ import org.gephi.project.api.Workspace;
  * @author Mathieu Bastian
  */
 @ServiceProvider(service = FilterBuilder.class)
-public class GRAPEBuilder implements FilterBuilder {
+public class EvolutionFilterBuilder implements FilterBuilder {
 
     @Override
     public Category getCategory() {
@@ -31,7 +31,7 @@ public class GRAPEBuilder implements FilterBuilder {
 
     @Override
     public String getName() {
-        return "FNA";
+        return "Feature Network Reduction";
     }
 
     @Override
@@ -41,17 +41,17 @@ public class GRAPEBuilder implements FilterBuilder {
 
     @Override
     public String getDescription() {
-        return "FNA";
+        return "Feature Network Reduction";
     }
 
     @Override
     public Filter getFilter(Workspace ws) {
-        return new GRAPE();
+        return new EvolutionFilter();
     }
 
     @Override
     public JPanel getPanel(Filter filter) {
-        return new GRAPEPanel((GRAPE)filter);
+        return new EvolutionFilterPanel((EvolutionFilter)filter);
     }
 
     @Override
