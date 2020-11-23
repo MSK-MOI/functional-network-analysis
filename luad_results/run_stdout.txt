@@ -1,0 +1,37 @@
+Calculating weighted network reduction based on
+
+node_data_file:             example_data/tcga_luad.cor_reduced_3000.data_RNA_Seq_v2_mRNA_median_Zscores.csv
+topology_file:              NA
+correlation_transformation: none
+normalization:              none
+method:                     gmt
+
+[1/6] Loading data and loading/building network
+      Inferring feature network from data using Pearson correlation. (No topology_file supplied).
+      Data set 510x3000 all numeric.
+      Calculated correlations (3000x3000)
+      Cutoff value for correlation: 0.55
+
+3000 nodes processed of 3000 (Elapsed 0.05 mins of expected total 0.05 mins)
+      Inferred 12498 edges, out of possible 4498500, with connectivity 0.0027782594198066
+      Support of inferred graph contains 2150 nodes.
+      Average degree 11.626046511628.
+      Diameter 22.
+
+[2/6] Integrating sample set and network data
+      12498 edges after integrating dataset and feature network.
+
+[3/6] Fitting Gaussian mixture models
+      Number of cores according to parallel::detectCores(): 16
+      Trying 15.
+  |==================================================================================================| 100%, Elapsed 02:24
+      12498 2D models with 3 populations.
+
+[4/6] Comparing all adjacent models
+  |==================================================================================================| 100%, Elapsed 00:07
+      33207 adjacent edge pairs considered.
+
+[5/6] Averaging over intermediating triangles to get virtual edges with weights
+
+      33207 of 33207 edge pairs collated.
+      4680 total virtual edges.
