@@ -1,4 +1,4 @@
-I was able to reproduce the results highlighting the PSG genes in module in the context of lung cancer.
+I was able to reproduce the results highlighting the PSG genes in a module in the context of lung cancer.
 
 The steps were:
 
